@@ -1,0 +1,155 @@
+/* header.css */
+.fs-12 {
+  font-size: 13px;
+} /* header.css */
+.header {
+  transition: color 0.3s ease;
+}
+
+.header-home {
+  color: white;
+}
+
+.header-other {
+  color: black;
+}
+
+.header-home .navbar {
+  background-color: #33333324;
+}
+/* Hide the checkbox */
+.menu-toggle {
+  display: none;
+}
+
+/* Menu Overlay */
+.menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+  z-index: 50;
+  display: flex;
+  justify-content: flex-start;
+  transition: opacity 0.3s ease, visibility 0s 0.3s; /* Add delay to visibility change */
+  visibility: hidden; /* Initially hidden */
+  opacity: 0;
+}
+
+/* When checkbox is checked, show the overlay */
+.menu-toggle:checked + .menu-overlay {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s ease, visibility 0s 0s; /* Immediate visibility change */
+}
+
+/* Off-Canvas Menu */
+.off-canvas-content {
+  background-color: white;
+  height: 100%;
+  width: 18rem; /* Width of the menu */
+  position: fixed;
+  top: 0;
+  left: -18rem; /* Initially hidden off-screen */
+  transition: left 0.5s ease-in-out; /* Slide-in and slide-out effect */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  z-index: 51;
+}
+
+/* When checkbox is checked, slide the menu in */
+.menu-toggle:checked + .menu-overlay .off-canvas-content {
+  left: 0; /* Slide in from the left */
+}
+
+/* Close button for the menu */
+.menu-close-button {
+  font-size: 1.25rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* Menu Items */
+.menu-items {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.menu-item {
+  display: block;
+  padding: 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.menu-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* search modal */
+/* Hide the checkbox */
+.search-toggle {
+  display: none;
+}
+
+/* search Overlay */
+.search-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
+  z-index: 50;
+  display: flex;
+  justify-content: flex-start;
+  transition: opacity 0.3s ease, visibility 0s 0.3s; /* Add delay to visibility change */
+  visibility: hidden; /* Initially hidden */
+  opacity: 0;
+}
+
+/* When checkbox is checked, show the overlay */
+.search-toggle:checked + .search-overlay {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 0.3s ease, visibility 0s 0s; /* Immediate visibility change */
+}
+
+/* When checkbox is checked, slide the search in */
+.search-toggle:checked + .search-overlay .off-canvas-content {
+  left: 0; /* Slide in from the left */
+}
+
+/* Close button for the search */
+.search-close-button {
+  font-size: 1.25rem;
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  background-color: white;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+/* search Items */
+.search-items {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+.search-item {
+  display: block;
+  padding: 1rem;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.search-item:hover {
+  background-color: #f0f0f0;
+}

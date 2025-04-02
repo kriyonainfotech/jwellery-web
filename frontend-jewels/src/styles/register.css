@@ -1,0 +1,26 @@
+/* Add styles for the registration form */
+.register-section {
+  padding: 20px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.register-form .form-group {
+  margin-bottom: 15px;
+}
+
+.register-button {
+  background-color: #000;
+  color: white;
+  padding: 10px;
+  border: none;
+  width: 100%;
+  cursor: pointer;
+}
+.fs-12 {
+  font-size: 12px;
+}
+.form-group input:focus {
+  border: 0.8px solid black;
+  outline: none;
+}
