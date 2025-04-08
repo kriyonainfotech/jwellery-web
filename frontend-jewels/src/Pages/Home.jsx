@@ -9,17 +9,23 @@ const Home = () => {
       <div className="home-container">
         <Header isHomepage={true} />
         {/* Add content below if needed */}
-        <div className="col-12 flex justify-center  pt-[15rem] md:pt-[16rem]">
+        <div
+          style={{ position: "relative", zIndex: 2 }}
+          className="col-12 flex justify-center  pt-[15rem] md:pt-[23rem]"
+        >
           <div className="col-8 text-center text-white">
-            <h1 className="crimson font-semibold tracking-wide text-4xl md:text-5xl">Welcome to Material Goods</h1>
-            <p className="montserrat ">Discover classy, minimal, and aesthetic jewelry.</p>
+            <h1 className="crimson font-semibold tracking-wide text-4xl md:text-7xl">
+              Welcome to Saaraa jewels
+            </h1>
+            <p className="montserrat text-xl">
+              Our Vision of Beauty, Worn by You
+            </p>
           </div>
         </div>
       </div>
       <CategorySection />
-      <Footer />
     </div>
-  )
+  );
 }
 
 export default Home

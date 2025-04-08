@@ -56,7 +56,7 @@ const CategorySection = () => {
           {/* Map through the categories array */}
           {categories.map((category) => (
             <div key={category.id} className="col-6 col-lg-3 my-3 my-lg-0">
-              <a href='#' className="item-card">
+              <a href="#" className="item-card">
                 <div className="item-img">
                   <img
                     src={category.imageUrl} // Use dynamic image path
@@ -65,7 +65,9 @@ const CategorySection = () => {
                   />
                 </div>
                 <div className="item-title cursor-pointer pt-3">
-                  <p className="montserrat text-center uppercase font-medium text-gray-900 hover:text-gray-700 ">{category.name}</p>
+                  <p className="montserrat text-center uppercase font-medium text-gray-900 hover:text-gray-700 ">
+                    {category.name}
+                  </p>
                 </div>
               </a>
             </div>
@@ -73,7 +75,10 @@ const CategorySection = () => {
         </div>
         <div className="col-12 mt-4">
           <p className="text-center montserrat uppercase">
-            <a href="" className="text-gray-800 tracking-wide -2  font-medium border-gray-900 text-sm">
+            <a
+              href=""
+              className="text-gray-800 tracking-wide -2  font-medium border-gray-900 text-sm"
+            >
               explore all
             </a>
           </p>
@@ -84,53 +89,82 @@ const CategorySection = () => {
       <div className="bg-black mt-20">
         <div className="container">
           <div className="row pt-16">
-            <h1 className="uppercase text-center text-4xl sm:text-5xl tracking-wider crimson text-white font-semibold">FESTIVE FAVORITES</h1>
+            <h1 className="uppercase text-center text-4xl sm:text-5xl tracking-wider crimson text-white font-semibold">
+              FESTIVE FAVORITES
+            </h1>
           </div>
           <div className="row pt-16">
             <div className="col-12 col-md-6 mb-4 mb-md-0">
               <a href="#" className="h-full">
                 <div className="image w-100 h-[500px]">
-                  <img src="https://materialgood.com/cdn/shop/files/Slice_10_3954f764-d978-4ae5-b126-bd369accadce.jpg?v=1732121359" alt="" className="w-100 object-cover h-100" />
+                  <img
+                    src="https://materialgood.com/cdn/shop/files/Slice_10_3954f764-d978-4ae5-b126-bd369accadce.jpg?v=1732121359"
+                    alt=""
+                    className="w-100 object-cover h-100"
+                  />
                 </div>
-                <p className="text-center crimson text-lg text-white pt-4">SEASONAL MUST-HAVES</p>
-
+                <p className="text-center crimson text-lg text-white pt-4">
+                  SEASONAL MUST-HAVES
+                </p>
               </a>
             </div>
             <div className="col-12 col-md-6 mb-4 mb-md-0">
               <a href="#" className="h-full">
                 <div className="image w-100 h-[500px]">
-                  <img src="https://materialgood.com/cdn/shop/files/2700ae479859aa4d6752491010d788a6.png?v=1730736660" alt="" className="w-100 object-cover h-100" />
+                  <img
+                    src="https://materialgood.com/cdn/shop/files/2700ae479859aa4d6752491010d788a6.png?v=1730736660"
+                    alt=""
+                    className="w-100 object-cover h-100"
+                  />
                 </div>
-                <p className="text-center crimson text-lg text-white pt-4 uppercase">The ferra collection</p>
-
+                <p className="text-center crimson text-lg text-white pt-4 uppercase">
+                  The ferra collection
+                </p>
               </a>
             </div>
           </div>
         </div>
         <div className="container-fluid">
-          <div className="image-banner mt-10">
-          </div>
+          <div className="image-banner mt-10"></div>
         </div>
       </div>
 
       {/* section 3 */}
       <div className="container my-20">
         <div className="row">
-          <h1 className="text-center crimson text-4xl sm:text-5xl tracking-widest font-semibold">TIMEPIECES</h1>
+          <h1 className="text-center crimson text-4xl sm:text-5xl tracking-widest font-semibold">
+            TIMEPIECES
+          </h1>
           <div className="col-12 mt-3 mt-sm-5">
-            <div className="image w-full h-[280px] sm:h-[300px] md:h-[500px] lg:h-[600px] relative">
-              <img src="https://materialgood.com/cdn/shop/files/Slice_15_2871a3aa-8a3e-4aae-b2de-e87a04beae34.png?v=1732131782" alt="" className="w-full h-full object-cover" />
-              <a href="#" className="text-center underline text-white absolute bottom-0 left-1/2 -translate-x-1/2 montserrat   border-white mb-3 mb-md-5 text-sm">SHOP DIAMOND EMBELLISHED TIMEPIECES</a>
+            <div className="image w-full h-[280px] sm:h-[300px] md:h-[500px] lg:h-[650px] relative">
+              <img
+                src="https://res.cloudinary.com/dckm6ymoh/image/upload/v1744123528/2024-Icons-BG-2x2-Onfig-T3_yk76ta.webp"
+                alt=""
+                className="w-full h-full object-cover object-top"
+              />
+              <a
+                href="#"
+                className="text-center underline text-white absolute bottom-0 left-1/2 -translate-x-1/2 montserrat   border-white mb-3 mb-md-5 text-sm"
+              >
+                SHOP DIAMOND EMBELLISHED TIMEPIECES
+              </a>
             </div>
           </div>
           <div className="col-12 d-flex mt-2">
             <div className="col-6">
               <div className="image w-full pe-1">
                 <a href="">
-                  <img src="https://materialgood.com/cdn/shop/files/Slice_13_86c1dda7-eda0-4fe7-a4a8-f15024c69a71.png?v=1732131709" className="" alt="" />
+                  <img
+                    src="https://res.cloudinary.com/dckm6ymoh/image/upload/v1744123519/elsa-perettipearls-by-the-yard-necklace-60763992_1045503_ED_rgcylm.webp"
+                    className="object-cover w-full h-[600px]"
+                    alt=""
+                  />
                 </a>
                 <p className="text-center mt-4">
-                  <a href="#" className="text-center uppercase montserrat text-sm text-gray-900 font-medium  border-gray-800">
+                  <a
+                    href="#"
+                    className="text-center uppercase montserrat text-sm text-gray-900 font-medium  border-gray-800"
+                  >
                     SHOP VINTAGE & LEGACY TIMEPIECES
                   </a>
                 </p>
@@ -139,10 +173,17 @@ const CategorySection = () => {
             <div className="col-6">
               <div className="image w-full ps-1 ">
                 <a href="#">
-                  <img src="https://materialgood.com/cdn/shop/files/Slice_14_d353e630-dbd0-4a04-a56c-c3031ac79ac2.png?v=1732131730" alt="" />
+                  <img
+                    src="https://res.cloudinary.com/dckm6ymoh/image/upload/v1744123510/ziegfeld-collectionpearl-wrap-necklace-32803563_1051850_ED_1_sgzerd.jpg"
+                    alt=""
+                    className="object-cover w-full h-[600px]"
+                  />
                 </a>
                 <p className="text-center mt-4">
-                  <a href="#" className="text-center uppercase montserrat text-sm text-gray-900 font-medium  border-gray-800">
+                  <a
+                    href="#"
+                    className="text-center uppercase montserrat text-sm text-gray-900 font-medium  border-gray-800"
+                  >
                     SHOP PRE-OWNED AUDEMARS PIGUET
                   </a>
                 </p>
@@ -154,12 +195,18 @@ const CategorySection = () => {
 
       {/* section 4 */}
       <div className="bestsellers-container">
-        <h2 className="uppercase crimson text-5xl tracking-widest font-semibold text-white my-16">Bestsellers</h2>
+        <h2 className="uppercase crimson text-5xl tracking-widest font-semibold text-white my-16">
+          Bestsellers
+        </h2>
         <div className="row justify-center">
           {bestsellers.map((item) => (
             <div className="col-12 col-md-6 col-lg-4 my-2 my-lg-0">
               <div key={item.id} className="bestseller-card">
-                <img src={item.imageUrl} alt={item.title} className="bestseller-image" />
+                <img
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="bestseller-image"
+                />
                 <div className="bestseller-title">{item.title}</div>
               </div>
             </div>

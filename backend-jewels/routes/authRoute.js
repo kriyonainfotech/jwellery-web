@@ -5,11 +5,13 @@ const {
   loginUser,
   verifyOTP,
   logout,
+  getUserById,
 } = require("../controller/userController");
+const { protect } = require("../middleware/authmiddleware");
 
 routes.post("/register", registerUser);
 routes.post("/login", loginUser);
-routes.post("/verify-otp", verifyOTP);
-routes.post("/logout", logout);
+routes.get("/me/:id", protect, getUserById);
+
 
 module.exports = routes;

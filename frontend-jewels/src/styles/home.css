@@ -9,6 +9,15 @@
   position: relative; /* To position header on top */
   z-index: 0; /* Ensures the background stays at the lowest layer */
 }
+
+.home-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4); /* Adjust opacity here */
+  z-index: 1;
+}
+
 @media (max-width: 768px) {
   .home-container {
     background-image: url("https://materialgood.com/cdn/shop/files/bd7ef39c6955ad0c4120fb6f9e7f37d7_rotated.jpg?v=1730731378"); /* Path to your image */

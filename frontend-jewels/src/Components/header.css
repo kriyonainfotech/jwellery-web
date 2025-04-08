@@ -3,8 +3,25 @@
   font-size: 13px;
 } /* header.css */
 .header {
+  z-index: 40; 
+  position: relative;
   transition: color 0.3s ease;
 }
+
+.header-blur {
+  backdrop-filter: blur(12px);
+  background-color: rgba(0, 0, 0, 0.437);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.493);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.header-blur-other {
+  backdrop-filter: blur(12px);
+  background-color: rgba(116, 116, 116, 0.48);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.493);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
 
 .header-home {
   color: white;
@@ -30,7 +47,6 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
-  z-index: 50;
   display: flex;
   justify-content: flex-start;
   transition: opacity 0.3s ease, visibility 0s 0.3s; /* Add delay to visibility change */
@@ -56,7 +72,6 @@
   transition: left 0.5s ease-in-out; /* Slide-in and slide-out effect */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  z-index: 51;
 }
 
 /* When checkbox is checked, slide the menu in */
@@ -72,6 +87,13 @@
   justify-content: flex-end;
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
+}
+.menu-overlay {
+  z-index: 40; /* lower than header */
+}
+
+.search-overlay {
+  z-index: 45; /* still lower than header's z-[60] */
 }
 
 /* Menu Items */

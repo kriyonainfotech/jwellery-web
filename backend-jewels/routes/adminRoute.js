@@ -4,14 +4,15 @@ const {
   loginadminHandler,
   verifySecretKey,
   getAllUsers,
+  verifyAdmin,
 } = require("../controller/adminController");
-const { authenticateJWT } = require("../middleware/authmiddleware");
+const { authenticateJWT, isAdmin } = require("../middleware/authmiddleware");
 const routes = express.Router();
 
-routes.post("/register", registeradminHandler);
-routes.post("/login", loginadminHandler);
+// routes.post("/register", registeradminHandler);
+routes.post("/login", isAdmin, loginadminHandler);
 routes.post("/verify-secret-key", authenticateJWT, verifySecretKey);
-routes.get("/allusers", getAllUsers);
-// routes.post("/check-auth",)
+// routes.get("/allusers", getAllUsers);
+routes.post("/check-auth", isAdmin, verifyAdmin);
 
 module.exports = routes;

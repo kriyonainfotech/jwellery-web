@@ -4,7 +4,8 @@ const userModel = require("../models/userModel");
 
 const protect = (req, res, next) => {
   const token = req.cookies.token || req.header("Authorization")?.split(" ")[1];
-  if (!token) return res.status(401).json({ message: "Not authorized" });
+  console.log(token, "token in protect middleware");
+  if (!token) return res.status(401).json({ message: "Access denied" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -12,6 +13,36 @@ const protect = (req, res, next) => {
     next();
   } catch (err) {
     res.status(403).json({ message: "Invalid token" });
+  }
+};
+
+const isAdmin = async (req, res, next) => {
+  try {
+    const userEmail = req.body?.email;
+    console.log("🔍 Checking admin for email:", userEmail);
+
+    if (!userEmail) {
+      console.log("🔒 Unauthorized - No email in token");
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const user = await userModel.findOne({ email: userEmail });
+
+    if (!user) {
+      console.log("❌ User not found");
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (!user.isAdmin) {
+      console.log("⛔ Access denied - Not an admin");
+      return res.status(403).json({ message: "Access denied. Admins only." });
+    }
+
+    console.log("✅ Admin verified:", user.email);
+    next();
+  } catch (err) {
+    console.error("🔥 Error in isAdmin middleware:", err.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -23,18 +54,18 @@ const validateRegisterData = (email, password) => {
   if (!emailRegex.test(email)) {
     throw new Error("Email must start with a lowercase letter.");
   }
-  if (!passwordRegex.test(password)) {
-    throw new Error(
-      "Password must be at least 8 characters long, include a number, and a special character."
-    );
-  }
+  // if (!passwordRegex.test(password)) {
+  //   throw new Error(
+  //     "Password must be at least 8 characters long, include a number, and a special character."
+  //   );
+  // }
 };
 
 // Middleware to check if the superadmin is logged in
 const authenticateJWT = (req, res, next) => {
-  const token =
-    req.cookies.loggedtoken || req.header("Authorization")?.split(" ")[1];
+  const token = req.cookies.loggedtoken;
 
+  console.log(token, "token in authenticateJWT");
   if (!token) {
     return res
       .status(401)
@@ -42,7 +73,7 @@ const authenticateJWT = (req, res, next) => {
   }
 
   // Verify the token
-  jwt.verify(token, process.env.JWT_SECRETKEY, (err, admin) => {
+  jwt.verify(token, process.env.JWT_SECRET, (err, admin) => {
     if (err) {
       return res.status(403).send({ error: "Invalid or expired token." });
     }
@@ -69,7 +100,7 @@ const isAdminLoggedIn = async (req, res, next) => {
     }
 
     // Verify token and decode
-    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log(decoded, "admin");
     // Check if the decoded admin exists
     const admin = await adminModel.findById(decoded.adminId);
@@ -110,7 +141,7 @@ const isUserLoggedIn = async (req, res, next) => {
     }
 
     // Verify token and decode
-    const decoded = jwt.verify(token, process.env.JWT_SECRETKEY);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     // Check if the decoded admin exists
     const user = await userModel.findById(decoded.userId);
     console.log(user, "user");
@@ -142,4 +173,5 @@ module.exports = {
   authenticateJWT,
   isAdminLoggedIn,
   isUserLoggedIn,
+  isAdmin,
 };

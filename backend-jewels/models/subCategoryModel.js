@@ -1,17 +1,22 @@
 const mongoose = require("mongoose");
 
-const subcategorySchema = new mongoose.Schema(
+const subCategorySchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, unique: true },
-    description: { type: String },
-    category: {
+    name: { type: String, required: true },
+    categoryId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Category", // Reference to the Category model
+      ref: "Category",
       required: true,
     },
-    createdAt: { type: Date, default: Date.now },
+    image: { type: String },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Subcategory", subcategorySchema);
+// 🧠 Useful indexes (you can uncomment these if needed)
+// subCategorySchema.index({ name: 1 }, { unique: true });
+// subCategorySchema.index({ categoryId: 1 });
+
+module.exports =
+  mongoose.models.SubCategory ||
+  mongoose.model("SubCategory", subCategorySchema);

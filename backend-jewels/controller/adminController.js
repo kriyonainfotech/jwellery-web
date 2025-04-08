@@ -1,5 +1,6 @@
 const { v4: uuidv4 } = require("uuid");
 const adminModel = require("../models/adminModel");
+const userModel = require("../models/userModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
@@ -82,7 +83,7 @@ const loginadminHandler = async (req, res) => {
       });
     }
 
-    const admin = await adminModel.findOne({ email });
+    const admin = await userModel.findOne({ email });
     if (!admin) {
       return res.status(400).send("Admin not found.");
     }
@@ -98,23 +99,23 @@ const loginadminHandler = async (req, res) => {
       {
         id: admin._id,
         email: admin.email,
-        role: admin.role,
+        isAdmin: admin.isAdmin,
       },
-      process.env.JWT_SECRETKEY, // Secret key
-      { expiresIn: "10m" } // Token expiration time
+      process.env.JWT_SECRET, // Secret key
+      { expiresIn: "1d" } // Token expiration time
     );
 
     // Set JWT token in a cookie
     res.cookie("loggedtoken", token, {
       httpOnly: true,
-      secure: true,
-      maxAge: 10 * 60 * 1000, // 10 minutes
-      sameSite: "None",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).send({
       success: true,
-      message: "Login successful, Enter Secret key to proceed further.",
+      message: "Login successful",
       loggedtoken: token,
     });
   } catch (error) {
@@ -128,7 +129,7 @@ const verifySecretKey = async (req, res) => {
   try {
     const { secretKey } = req.body;
     const admin = req.admin;
-    console.log(admin, "record");
+    console.log(admin, secretKey, "record");
     // Ensure the secret key is provided
     if (!secretKey) {
       return res
@@ -187,7 +188,7 @@ const verifyAdmin = async (req, res) => {
     console.log(error, " admin not verified");
     res.status(500).send({
       success: false,
-      message: "role not  admin",
+      message: "role not admin",
       error,
     });
   }
