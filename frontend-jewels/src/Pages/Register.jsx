@@ -88,6 +88,7 @@ const Register = () => {
 
     const name = e.target.name.value;
     const email = e.target.email.value;
+    const phone = e.target.phone.value;
     const password = e.target.password.value;
 
     try {
@@ -95,6 +96,7 @@ const Register = () => {
         `${import.meta.env.VITE_API_URL}/auth/register`,
         {
           name,
+          phone,
           email,
           password,
         }
@@ -170,6 +172,16 @@ const Register = () => {
                   name="name"
                   className="fs-12 rounded-0"
                   placeholder="Enter your name"
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label className="montserrat ">Phone</label>
+                <input
+                  type="phone"
+                  name="phone"
+                  className="fs-12 rounded-0"
+                  placeholder="Enter your phone"
                   required
                 />
               </div>
