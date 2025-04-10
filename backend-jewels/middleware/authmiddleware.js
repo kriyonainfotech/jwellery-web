@@ -4,12 +4,13 @@ const userModel = require("../models/userModel");
 
 const protect = (req, res, next) => {
   const token = req.cookies.token || req.header("Authorization")?.split(" ")[1];
-  console.log(token, "token in protect middleware");
+  console.log(req.cookies, "token in protect middleware");
   if (!token) return res.status(401).json({ message: "Access denied" });
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
+    console.log("🔑 Token verified:", decoded);
     next();
   } catch (err) {
     res.status(403).json({ message: "Invalid token" });
@@ -88,7 +89,7 @@ const isAdminLoggedIn = async (req, res, next) => {
   try {
     // Check if token is present in cookies
     const token =
-      req.cookies.verifiedtoken || req.header("Authorization")?.split(" ")[1];
+      req.cookies.token || req.header("Authorization")?.split(" ")[1];
 
     console.log(token, "token in isAdminLoggedIn");
 
@@ -102,9 +103,9 @@ const isAdminLoggedIn = async (req, res, next) => {
     // Verify token and decode
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log(decoded, "admin");
+
     // Check if the decoded admin exists
-    const admin = await adminModel.findById(decoded.adminId);
-    if (!admin) {
+    if (decoded.isAdmin === false) {
       return res.status(401).send({
         success: false,
         message: "Admin not found. Please log in again.",
@@ -112,7 +113,7 @@ const isAdminLoggedIn = async (req, res, next) => {
     }
 
     // Attach admin info to the request object for further use in controllers
-    req.admin = admin;
+    req.admin = decoded;
 
     // Move to the next middleware or controller
     next();

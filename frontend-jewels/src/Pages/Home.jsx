@@ -1,31 +1,25 @@
 import React from 'react'
-import Header from '../Components/Header'
-import '../styles/home.css'
-import CategorySection from '../Components/categorySection'
-import Footer from '../Components/Footer'
+import { Route, Routes } from "react-router-dom";
+import { About } from "./About";
+import Account from "./MyAccount";
+import Register from "./Register";
+import { HomePage } from "./HomePage";
+import Header from "../Components/Header";
+import Footer from "../Components/Footer";
+
 const Home = () => {
   return (
-    <div>
-      <div className="home-container">
-        <Header isHomepage={true} />
-        {/* Add content below if needed */}
-        <div
-          style={{ position: "relative", zIndex: 2 }}
-          className="col-12 flex justify-center  pt-[15rem] md:pt-[23rem]"
-        >
-          <div className="col-8 text-center text-white">
-            <h1 className="crimson font-semibold tracking-wide text-4xl md:text-7xl">
-              Welcome to Saaraa jewels
-            </h1>
-            <p className="montserrat text-xl">
-              Our Vision of Beauty, Worn by You
-            </p>
-          </div>
-        </div>
-      </div>
-      <CategorySection />
-    </div>
+    <>
+      <Header />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/account/login" element={<Account />} />
+        <Route path="/account/register" element={<Register />} />
+      </Routes>
+      <Footer />
+    </>
   );
-}
+};
 
-export default Home
+export default Home;

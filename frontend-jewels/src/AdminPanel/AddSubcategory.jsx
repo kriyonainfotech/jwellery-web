@@ -1,30 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+const apiurl = import.meta.env.VITE_API_URL;
+// console.log(apiurl);
+import { useLocation, useParams } from "react-router-dom";
 
 const AddSubCategory = () => {
-
-
-  const [categories, setCategories] = useState([
-    { id: 1, name: "Electronics" },
-    { id: 2, name: "Clothing" },
-    { id: 3, name: "Home Appliances" },
-  ]);
-
+  const navigate = useNavigate();
+  const { categoryId } = useParams(); // Optional, auto-select
+  const [categories, setCategories] = useState([]);
   const [subCategoryName, setSubCategoryName] = useState("");
-  const [category, setCategory] = useState(""); // For selected category
+  const [category, setCategory] = useState(categoryId || ""); // Auto-select if param exists
   const [subCategoryImage, setSubCategoryImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const location = useLocation();
+  console.log(location.state, "location state");
+  const categoryName = location.state?.categoryName || "";
 
-  // Handle subcategory name input change
-  const handleNameChange = (e) => {
-    setSubCategoryName(e.target.value);
-  };
-
-  // Handle category dropdown change
-  const handleCategoryChange = (e) => {
-    setCategory(e.target.value);
-  };
-
-  // Handle subcategory image input change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -33,102 +26,140 @@ const AddSubCategory = () => {
     }
   };
 
-  // Handle form submission
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (category && subCategoryName && subCategoryImage) {
-      const newSubCategory = {
-        name: subCategoryName,
-        category: category, // Selected category
-        image: subCategoryImage, // Subcategory image file
-      };
-      onAddSubCategory(newSubCategory);
-      alert("Subcategory added successfully!");
-      setSubCategoryName(""); // Reset subcategory name
-      setCategory(""); // Reset category selection
-      setSubCategoryImage(null); // Reset image
-      setImagePreview(null); // Reset image preview
-    } else {
-      alert("Please fill in all fields.");
+    console.log(category, subCategoryName, "category id");
+    if (!category || !subCategoryName || !subCategoryImage) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("name", subCategoryName);
+    formData.append("categoryId", category);
+    formData.append("image", subCategoryImage);
+    // 🔍 Just to debug FormData entries
+    for (const [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
+
+    try {
+      const res = await axios.post(
+        `${apiurl}/subcategory/add-subcategory`,
+        formData,
+        {
+          withCredentials: true,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (res.data.success) {
+        toast.success("✅ Subcategory added successfully!");
+        setSubCategoryName("");
+        setCategory(categoryId || "");
+        setSubCategoryImage(null);
+        setImagePreview(null);
+      } else {
+        toast("Failed to add subcategory.");
+      }
+    } catch (err) {
+      console.error("❌ Error:", err);
+      alert("Something went wrong.");
     }
   };
 
   return (
-    <div className="col-12 flex justify-center">
-      <div className="col-10 mt-20">
-        <div className="p-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Add New Subcategory</h2>
+    <div className="flex justify-center mt-20">
+      <div className="w-full max-w-2xl bg-white p-8 rounded-xl shadow-md">
+        <div className="flex items-center justify-between mb-6 gap-4">
+          <h2 className="text-2xl font-semibold text-cyan-900">
+            Add New Subcategory
+          </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Category Dropdown */}
+          {/* 🔙 Back Button */}
+          <button
+            onClick={() => navigate(-1)}
+            className="text-sm text-white bg-gray-800 px-3 py-2 rounded-lg flex items-center"
+          >
+            ← Back
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Category Select */}
+          <div>
+            <label className="block text-lg font-medium mb-1">
+              Select Category
+            </label>
             <div className="flex flex-col">
-              <label htmlFor="category" className="text-lg font-medium mb-1">Select Category</label>
-              <select
-                id="category"
-                value={category}
-                onChange={handleCategoryChange}
-                className="p-2 border border-gray-300 rounded-md"
-                required
+              <label
+                htmlFor="categoryName"
+                className="text-lg font-medium mb-1"
               >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Subcategory Name */}
-            <div className="flex flex-col">
-              <label htmlFor="subCategoryName" className="text-lg font-medium mb-1">Subcategory Name</label>
+                Category
+              </label>
               <input
                 type="text"
-                id="subCategoryName"
-                value={subCategoryName}
-                onChange={handleNameChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter subcategory name"
-                required
+                id="categoryName"
+                value={categoryName}
+                disabled
+                className="p-2 border border-gray-300 rounded-md bg-gray-100 text-gray-700 cursor-not-allowed"
               />
             </div>
+          </div>
 
-            {/* Subcategory Image */}
-            <div className="flex flex-col">
-              <label htmlFor="subCategoryImage" className="text-lg font-medium mb-1">Subcategory Image</label>
-              <input
-                type="file"
-                id="subCategoryImage"
-                onChange={handleImageChange}
-                className="p-2 border border-gray-300 rounded-md"
-                accept="image/*"
-                required
-              />
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="mt-4">
-                  <h3 className="text-sm font-medium">Image Preview:</h3>
-                  <img
-                    src={imagePreview}
-                    alt="Subcategory Preview"
-                    className="mt-2 w-32 h-32 object-cover rounded-md"
-                  />
-                </div>
-              )}
-            </div>
+          {/* Name Input */}
+          <div>
+            <label className="block text-lg font-medium mb-1">
+              Subcategory Name
+            </label>
+            <input
+              type="text"
+              value={subCategoryName}
+              onChange={(e) => setSubCategoryName(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded-md"
+              placeholder="Enter subcategory name"
+              required
+            />
+          </div>
 
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-600 transition duration-300"
-              >
-                Add Subcategory
-              </button>
-            </div>
-          </form>
-        </div>
+          {/* Image Upload */}
+          <div>
+            <label className="block text-lg font-medium mb-1">
+              Subcategory Image
+            </label>
+            <input
+              type="file"
+              onChange={handleImageChange}
+              accept="image/*"
+              className="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+            {imagePreview && (
+              <div className="mt-4">
+                <h3 className="text-sm font-medium text-gray-600">
+                  Image Preview:
+                </h3>
+                <img
+                  src={imagePreview}
+                  alt="Preview"
+                  className="mt-2 w-32 h-32 object-cover rounded-md border"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Submit */}
+          <button
+            type="submit"
+            className="w-full py-3 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition"
+          >
+            Add Subcategory
+          </button>
+        </form>
       </div>
     </div>
   );

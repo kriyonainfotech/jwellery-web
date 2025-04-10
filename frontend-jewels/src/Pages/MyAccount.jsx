@@ -158,7 +158,7 @@ const Account = () => {
 
         setUserData(user);
         localStorage.setItem("token", token);
-        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("userInfo", JSON.stringify(user));
       }
     } catch (error) {
       console.error("Login failed:", error);

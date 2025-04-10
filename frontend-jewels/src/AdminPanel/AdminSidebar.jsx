@@ -21,7 +21,7 @@ const Sidebar = () => {
         <nav className="sidebar">
           <ul>
             <li className="py-2 hover:bg-gray-800 px-3">
-              <Link to={"/admin/"}>Dashboard</Link>
+              <Link to={"/admin/dashboard"}>Dashboard</Link>
             </li>
             <li className="py-2 hover:bg-gray-800 px-3">
               <Link className="" to={"/admin/categories"}>

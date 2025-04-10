@@ -5,9 +5,14 @@ import { FiMenu, FiShoppingCart } from "react-icons/fi";
 import { FaRegHeart, FaRegUser } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { TiMediaEject } from "react-icons/ti";
+import { FiSearch, FiX } from "react-icons/fi";
 
 const Header = ({ isHomepage }) => {
+  const [showMenuModal, setShowMenuModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const user = JSON.parse(localStorage.getItem("userInfo"));
+  const isAdmin = user?.role === "admin" || user?.isAdmin;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -23,7 +28,7 @@ const Header = ({ isHomepage }) => {
 
   return (
     <header
-      className={`container-fluid fixed top-0 w-full z-[60] transition-all duration-300 ${
+      className={`container-fluid fixed top-0 w-full z-[30] transition-all duration-300 ${
         isScrolled ? "header-blur" : ""
       }`}
     >
@@ -31,28 +36,31 @@ const Header = ({ isHomepage }) => {
         <div className="container-fluid">
           {/* Left-side options (Menu, Search) */}
           <div className="col-3 d-flex justify-content-start align-items-center">
-            <label
-              htmlFor="menu-toggle"
-              className={`d-flex align-items-center  border-0 cursor-pointer ${
-                isHome ? "header-home" : "header-other"
-              }`}
-            >
-              <FiMenu />
-              <span className="montserrat uppercase fs-12 tracking-wider ps-1">
-                Menu
-              </span>
-            </label>
-            <label
-              htmlFor="search-toggle"
-              className={`d-none d-md-flex align-items-center ps-4 border-0 cursor-pointer ${
-                isHome ? "header-home" : "header-other"
-              }`}
-            >
-              <IoSearchSharp />
-              <span className="montserrat uppercase fs-12 tracking-wider ps-1">
-                Search
-              </span>
-            </label>
+            <div className="flex items-center gap-4">
+              {/* Menu Button */}
+              <button
+                onClick={() => setShowMenuModal(true)}
+                className={`d-none d-md-flex align-items-center pe-4 ${
+                  isHome ? "header-home" : "header-other"
+                } `}
+                // className="flex items-center gap-2 hover:text-gray-600 transition-colors"
+              >
+                <FiMenu className="w-6 h-6" />
+                <span className="hidden sm:inline">Menu</span>
+              </button>
+
+              {/* Search Button */}
+              <button
+                onClick={() => setShowSearchModal(true)}
+                // className="flex items-center gap-2 hover:text-gray-600 transition-colors"
+                className={`d-none d-md-flex align-items-center pe-4 ${
+                  isHome ? "header-home" : "header-other"
+                } `}
+              >
+                <FiSearch className="w-6 h-6" />
+                <span className="hidden sm:inline">Search</span>
+              </button>
+            </div>
           </div>
 
           {/* Logo at center */}
@@ -137,7 +145,7 @@ const Header = ({ isHomepage }) => {
       </nav>
 
       {/* Off-Canvas Menu */}
-      <input type="checkbox" id="menu-toggle" className="menu-toggle" />
+      {/* <input type="checkbox" id="menu-toggle" className="menu-toggle" />
       <div className="menu-overlay">
         <div className="off-canvas-content">
           <div className="menu-close-button">
@@ -171,13 +179,19 @@ const Header = ({ isHomepage }) => {
                 My Cart
               </Link>
             </li>
+            {isAdmin && (
+              <li>
+                <Link to="/admin/dashboard" className="menu-item">
+                  Admin Panel
+                </Link>
+              </li>
+            )}
           </ul>
         </div>
       </div>
 
-      {/* search */}
       <input type="checkbox" id="search-toggle" className="search-toggle" />
-      <div className="search-overlay z-40">
+      <div className="search-overlay">
         <div className="off-canvas-content">
           <div className="search-close-button">
             <label
@@ -197,7 +211,80 @@ const Header = ({ isHomepage }) => {
             />
           </div>
         </div>
-      </div>
+      </div> */}
+
+      {/* Menu Modal */}
+      {showMenuModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-start">
+          <div className="bg-white w-[20%] h-full p-6 shadow-lg overflow-y-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold">Menu</h2>
+              <button
+                onClick={() => setShowMenuModal(false)}
+                className="p-2 hover:text-gray-600"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="flex flex-col gap-4">
+              <ul className="menu-items">
+                <li>
+                  <Link to="/account/login" className="menu-item">
+                    My Profile
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    // to="/orders"
+                    className="menu-item"
+                  >
+                    My Orders
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    // to="/cart"
+                    className="menu-item"
+                  >
+                    My Cart
+                  </Link>
+                </li>
+                {isAdmin && (
+                  <li>
+                    <Link to="/admin/dashboard" className="menu-item">
+                      Admin Panel
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Search Modal */}
+      {showSearchModal && (
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-start">
+          <div className="bg-white w-[40%] h-full p-6 shadow-lg overflow-y-auto">
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-bold">Search</h2>
+              <button
+                onClick={() => setShowSearchModal(false)}
+                className="p-2 hover:text-gray-600"
+              >
+                <FiX className="w-6 h-6" />
+              </button>
+            </div>
+            <div className="max-w-2xl mx-auto">
+              <input
+                type="text"
+                placeholder="Search..."
+                className="w-full p-2 ps-4 border-2 border-gray-200 rounded-lg text-xl focus:outline-none focus:border-gray-500"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 };

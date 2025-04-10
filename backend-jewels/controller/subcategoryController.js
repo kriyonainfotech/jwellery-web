@@ -1,37 +1,45 @@
 // controller/subcategoryController.js
 
-const Subcategory = require("../models/subcategoryModel");
+const Subcategory = require("../models/subCategoryModel");
 const Category = require("../models/categoryModel"); // Category model to check if category exists
+const uploadImageToCloudinary = require("../middleware/uploadTocloud");
 
 // Add a new subcategory
 const addSubcategory = async (req, res) => {
   try {
-    const { name, description, categoryId } = req.body;
+    console.log("📥 [POST] Creating new subcategory...");
+
+    const { name, categoryId } = req.body;
+    console.log("Received data:", req.body, req.file);
 
     // Check if category exists
     const category = await Category.findById(categoryId);
     if (!category) {
+      console.log("❌ Category not found");
       return res
         .status(400)
         .send({ success: false, message: "Category not found." });
     }
 
+    const imageUrl = await uploadImageToCloudinary(req.file, "subcategories");
+
     // Create new subcategory
     const subcategory = new Subcategory({
       name,
-      description,
-      category: categoryId,
+      categoryId: categoryId,
+      image: imageUrl,
     });
 
     await subcategory.save();
 
+    console.log("✅ Subcategory created successfully", subcategory);
     return res.status(201).send({
       success: true,
       message: "Subcategory added successfully.",
       data: subcategory,
     });
   } catch (error) {
-    console.error(error);
+    console.log("Error in add subcategory", error);
     return res.status(500).send({ success: false, message: error.message });
   }
 };

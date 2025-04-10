@@ -21,19 +21,19 @@ const AdminHome = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-auto">
         <Routes>
-          <Route path="/" element={<Admindashboard />} />
+          <Route path="/dashboard" element={<Admindashboard />} />
           <Route path="/categories" element={<ViewCategory />} />
-          <Route path="/subcategories" element={<ViewSubcategory />} />
+          <Route path="/categories/:categoryId" element={<ViewSubcategory />} />
           <Route path="/products" element={<ViewProduct />} />
-          <Route path='/orders' element={<ViewOrders />} />
-          <Route path='/users' element={<ViewUsers />} />
-          <Route path='/categories/add' element={<AddCategory />} />
-          <Route path='/subcategories/add' element={<AddSubCategory />} />
-          <Route path='/products/add' element={<AddProduct />} />
+          <Route path="/orders" element={<ViewOrders />} />
+          <Route path="/users" element={<ViewUsers />} />
+          <Route path="/categories/add" element={<AddCategory />} />
+          <Route path="/:categoryId/add" element={<AddSubCategory />} />
+          <Route path="/products/add" element={<AddProduct />} />
         </Routes>
       </div>
     </div>
-  )
+  );
 }
 
 export default AdminHome

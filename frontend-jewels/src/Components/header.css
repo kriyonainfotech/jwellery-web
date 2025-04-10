@@ -52,6 +52,11 @@
   transition: opacity 0.3s ease, visibility 0s 0.3s; /* Add delay to visibility change */
   visibility: hidden; /* Initially hidden */
   opacity: 0;
+  /* Higher than header's z-30 */
+}
+
+.menu-toggle:checked + .navbar {
+  z-index: -5; /* Higher than header's z-30 */
 }
 
 /* When checkbox is checked, show the overlay */
@@ -59,6 +64,7 @@
   visibility: visible;
   opacity: 1;
   transition: opacity 0.3s ease, visibility 0s 0s; /* Immediate visibility change */
+  z-index: 50; /* Higher than header's z-30 */
 }
 
 /* Off-Canvas Menu */
@@ -88,12 +94,12 @@
   background-color: white;
   border-bottom: 1px solid #e0e0e0;
 }
-.menu-overlay {
-  z-index: 40; /* lower than header */
-}
 
-.search-overlay {
-  z-index: 45; /* still lower than header's z-[60] */
+/* In header.css */
+.menu-close-button label {
+  display: block;
+  padding: 1rem;
+  color: #333; /* Explicit color */
 }
 
 /* Menu Items */
@@ -128,7 +134,7 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
-  z-index: 50;
+ 
   display: flex;
   justify-content: flex-start;
   transition: opacity 0.3s ease, visibility 0s 0.3s; /* Add delay to visibility change */

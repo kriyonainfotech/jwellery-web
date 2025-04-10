@@ -11,6 +11,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { About } from "./Pages/About";
 import Header from "./Components/Header";
 import Footer from "./Components/Footer";
+import AdminProtected from "./ProtectedRoutes/AdminProtected";
 
 function App() {
   const [count, setCount] = useState(0);
@@ -18,17 +19,18 @@ function App() {
   return (
     <>
       <BrowserRouter>
-        <Header />
         <Routes>
           <Route path="/*" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/account/login" element={<Account />} />
-          <Route path="/account/register" element={<Register />} />
-
           <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/*" element={<AdminHome />} />
+          <Route
+            path="/admin/*"
+            element={
+              <AdminProtected>
+                <AdminHome />
+              </AdminProtected>
+            }
+          />
         </Routes>
-        <Footer />
       </BrowserRouter>
       <ToastContainer
         position="top-right"

@@ -92,6 +92,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { toast } from "react-toastify";
+
+const apiurl = import.meta.env.VITE_API_URL;
+console.log(apiurl);
 
 const AddCategory = () => {
   const [categoryName, setCategoryName] = useState("");
@@ -126,9 +130,10 @@ const AddCategory = () => {
       formData.append("image", categoryImage);
 
       const response = await axios.post(
-        "http://localhost:5000/api/category/add-category", // Update your backend URL here
+        `${apiurl}/category/add-category`, // Update your backend URL here
         formData,
         {
+          withCredentials: true,
           headers: {
             "Content-Type": "multipart/form-data",
           },
@@ -136,8 +141,8 @@ const AddCategory = () => {
       );
 
       if (response.data && response.data.category) {
-        alert("✅ Category created successfully!");
-        navigate("/categories"); // Redirect to category list page if needed
+        toast.success("✅ Category created successfully!");
+        navigate("/admin/categories"); // Redirect to category list page if needed
       }
     } catch (err) {
       console.error("❌ Error:", err.response?.data || err.message);

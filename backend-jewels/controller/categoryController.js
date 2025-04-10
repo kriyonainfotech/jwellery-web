@@ -95,17 +95,41 @@ const Category = require("../models/categoryModel");
 const uploadImageToCloudinary = require("../middleware/uploadTocloud");
 const Subcategory = require("../models/subCategoryModel"); // 👈 import this
 
-// ✅ Get all categories
 exports.getAllCategories = async (req, res) => {
   try {
     console.log("📦 Fetching all categories...");
+
     const categories = await Category.find().sort({ createdAt: -1 });
-    res.status(200).json(categories);
+
+    if (!categories || categories.length === 0) {
+      console.log("❌ No categories found");
+      return res.status(404).json({ message: "No categories found" });
+    }
+
+    // Fetch subcategories for each category
+    const categoriesWithSub = await Promise.all(
+      categories.map(async (category) => {
+        const subcategories = await Subcategory.find({
+          categoryId: category._id,
+        });
+        return {
+          ...category.toObject(),
+          subcategories: subcategories || [], // add subcategories key
+        };
+      })
+    );
+
+    console.log(
+      "📁 Fetched categories with subcategories:",
+      categoriesWithSub.length
+    );
+    res.status(200).json({ success: true, categories: categoriesWithSub });
   } catch (err) {
-    console.error("❌ Error fetching categories:", err.message);
+    console.log("❌ Error fetching categories:", err.message);
     res.status(500).json({ message: "Something went wrong" });
   }
 };
+
 
 // ✅ Get single category by ID
 exports.getCategoryById = async (req, res) => {
