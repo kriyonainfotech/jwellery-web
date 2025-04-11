@@ -29,11 +29,6 @@ const Sidebar = () => {
               </Link>
             </li>
             <li className="py-2 hover:bg-gray-800 px-3">
-              <Link className="" to={"/admin/subcategories"}>
-                Manage SubCategories
-              </Link>
-            </li>
-            <li className="py-2 hover:bg-gray-800 px-3">
               <Link className="" to={"/admin/products"}>
                 Manage Products
               </Link>

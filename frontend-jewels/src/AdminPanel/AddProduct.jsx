@@ -1,304 +1,469 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
+const apiurl = import.meta.env.VITE_API_URL;
 
 const AddProduct = () => {
-  // Categories and Subcategories for Jewelry
-  const categories = [
-    { id: 1, name: "Rings", subcategories: ["Gold", "Silver", "Platinum"] },
-    { id: 2, name: "Necklaces", subcategories: ["Chains", "Pendants", "Chokers"] },
-    { id: 3, name: "Earrings", subcategories: ["Hoops", "Studs", "Drop Earrings"] },
-  ];
+  const navigate = useNavigate();
 
-  // State to handle form data
-  const [productName, setProductName] = useState("");
-  const [productDescription, setProductDescription] = useState("");
-  const [productPrice, setProductPrice] = useState("");
-  const [productCategory, setProductCategory] = useState("");
-  const [productSubCategory, setProductSubCategory] = useState("");
-  const [productTags, setProductTags] = useState("");
-  const [productSKU, setProductSKU] = useState("");
-  const [productStockQuantity, setProductStockQuantity] = useState("");
-  const [productWeight, setProductWeight] = useState("");
-  const [productMaterial, setProductMaterial] = useState("");
-  const [productImage, setProductImage] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [thumbnail, setThumbnail] = useState(null);
+  const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [categoryId, setCategoryId] = useState("");
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [subCategoryId, setSubCategoryId] = useState("");
+  const [tags, setTags] = useState("");
+  const [status, setStatus] = useState("active");
+  const [variants, setVariants] = useState([
+    {
+      metalColor: "",
+      carat: "",
+      size: "",
+      diamondDetails: [],
+      priceBreakup: [],
+      totalPrice: "",
+      sku: "",
+      stock: "",
+      weightInGrams: "",
+      images: [],
+    },
+  ]);
 
-  // Handle form inputs
-  const handleCategoryChange = (e) => {
-    setProductCategory(e.target.value);
-    setProductSubCategory(""); // Reset subcategory when category changes
+  const handleVariantChange = (index, field, value) => {
+    const updatedVariants = [...variants];
+    updatedVariants[index][field] = value;
+    setVariants(updatedVariants);
   };
 
-  const handleSubCategoryChange = (e) => {
-    setProductSubCategory(e.target.value);
+  const handleVariantImageChange = (index, files) => {
+    const fileArray = Array.from(files);
+    const updatedVariants = [...variants];
+    updatedVariants[index].images = fileArray;
+    setVariants(updatedVariants);
   };
 
-  const handleImageChange = (e) => {
+  const addNewVariant = () => {
+    setVariants([
+      ...variants,
+      {
+        metalColor: "",
+        carat: "",
+        size: "",
+        diamondDetails: [],
+        priceBreakup: [],
+        totalPrice: "",
+        sku: "",
+        stock: "",
+        weightInGrams: "",
+        images: [],
+      },
+    ]);
+  };
+
+  const removeVariant = (index) => {
+    const updatedVariants = [...variants];
+    updatedVariants.splice(index, 1);
+    setVariants(updatedVariants);
+  };
+
+  // categories and subcategories
+  const fetchCategories = async () => {
+    // ✅ Check localStorage first
+    const cached = localStorage.getItem("categories");
+    if (cached) {
+      console.log("📦 Using cached categories from localStorage");
+      setCategories(JSON.parse(cached));
+      return;
+    }
+
+    // 🧠 If not cached, fetch from API
+    try {
+      console.log("🌐 Fetching categories from API...");
+      const res = await axios.get(`${apiurl}/category/getallcategories`);
+      if (res.data.success && res.data.categories) {
+        setCategories(res.data.categories);
+        localStorage.setItem("categories", JSON.stringify(res.data.categories));
+        console.log("✅ Categories saved to localStorage");
+      } else {
+        console.error("⚠️ No categories received from API");
+      }
+    } catch (err) {
+      console.error("❌ Error fetching categories:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  // const subcategories = [
+  //   { _id: "abc", name: "Rose Gold" },
+  //   { _id: "def", name: "Yellow Gold" },
+  // ];
+
+  const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      setProductImage(file);
-      setImagePreview(URL.createObjectURL(file)); // Preview selected image
+      setThumbnail(file);
+      setThumbnailPreview(URL.createObjectURL(file));
     }
   };
 
-  const handleProductNameChange = (e) => setProductName(e.target.value);
-  const handleProductDescriptionChange = (e) => setProductDescription(e.target.value);
-  const handleProductPriceChange = (e) => setProductPrice(e.target.value);
-  const handleProductTagsChange = (e) => setProductTags(e.target.value);
-  const handleProductSKUChange = (e) => setProductSKU(e.target.value);
-  const handleProductStockQuantityChange = (e) => setProductStockQuantity(e.target.value);
-  const handleProductWeightChange = (e) => setProductWeight(e.target.value);
-  const handleProductMaterialChange = (e) => setProductMaterial(e.target.value);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      productName &&
-      productDescription &&
-      productPrice &&
-      productCategory &&
-      productSubCategory &&
-      productTags &&
-      productSKU &&
-      productStockQuantity &&
-      productWeight &&
-      productMaterial &&
-      productImage
-    ) {
-      const newProduct = {
-        name: productName,
-        description: productDescription,
-        price: productPrice,
-        category: productCategory,
-        subCategory: productSubCategory,
-        tags: productTags,
-        SKU: productSKU,
-        stockQuantity: productStockQuantity,
-        weight: productWeight,
-        material: productMaterial,
-        image: productImage,
-      };
+    const formData = new FormData();
 
-      alert("Product Added Successfully!");
-      console.log(newProduct); // Here you can handle the product data (e.g., send to API or store in state)
+    formData.append("title", title);
+    formData.append("description", description);
+    formData.append("categoryId", categoryId);
+    formData.append("subCategoryId", subCategoryId);
+    formData.append("status", status);
+    formData.append("tags", tags);
 
-      // Reset the form after submitting
-      setProductName("");
-      setProductDescription("");
-      setProductPrice("");
-      setProductCategory("");
-      setProductSubCategory("");
-      setProductTags("");
-      setProductSKU("");
-      setProductStockQuantity("");
-      setProductWeight("");
-      setProductMaterial("");
-      setProductImage(null);
-      setImagePreview(null);
-    } else {
-      alert("Please fill in all fields.");
+    // Append thumbnail image
+    if (thumbnail) {
+      formData.append("thumbnail", thumbnail);
+    }
+
+    // Prepare variants
+    const updatedVariants = variants.map((variant, i) => {
+      const { images, ...rest } = variant;
+      return rest; // images will be handled separately
+    });
+
+    formData.append("variants", JSON.stringify(updatedVariants));
+
+    // Append all variant images in a nested way
+    variants.forEach((variant, i) => {
+      variant.images.forEach((file, j) => {
+        formData.append(`variantImages_${i}_${j}`, file); // like variantImages_0_0
+      });
+    });
+
+    console.log("🚀 Submitting formData:", formData);
+
+    try {
+      const res = await axios.post(`${apiurl}/product/add-product`, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log(res, "res");
+
+      if (res.data.success) {
+        console.log("✅ Product added:", res.data);
+        navigate("/admin/products");
+      } else {
+        console.error("❌ API failed:", res.data.message);
+      }
+    } catch (err) {
+      console.error("🔥 API Error:", err.message);
     }
   };
 
-  // Get subcategories based on selected category
-  const selectedCategory = categories.find((category) => category.id === parseInt(productCategory));
-  const subcategories = selectedCategory ? selectedCategory.subcategories : [];
-
   return (
-    <div className="col-12 flex justify-center">
-      <div className="col-10 mt-5">
-        <div className="p-6 bg-white shadow-lg rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">Add New Jewelry Product</h2>
+    <div className="max-w-6xl mx-auto mt-10 px-4">
+      <h2 className="text-2xl font-bold text-cyan-900 mb-6">
+        Add New Jewelry Product
+      </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Product Name */}
-            <div className="flex flex-col">
-              <label htmlFor="productName" className="text-lg font-medium mb-1">Product Name</label>
-              <input
-                type="text"
-                id="productName"
-                value={productName}
-                onChange={handleProductNameChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter product name"
-                required
-              />
-            </div>
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-6 rounded-lg shadow-md grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        {/* Title */}
+        <div>
+          <label className="block mb-1 font-medium">Product Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full border border-gray-300 p-2 rounded-md"
+            placeholder="e.g. Diamond Ring"
+            required
+          />
+        </div>
 
-            {/* Product Description */}
-            <div className="flex flex-col">
-              <label htmlFor="productDescription" className="text-lg font-medium mb-1">Product Description</label>
-              <textarea
-                id="productDescription"
-                value={productDescription}
-                onChange={handleProductDescriptionChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter product description"
-                rows="4"
-                required
-              />
-            </div>
+        {/* Tags */}
+        <div>
+          <label className="block mb-1 font-medium">
+            Tags (comma separated)
+          </label>
+          <input
+            type="text"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            className="w-full border border-gray-300 p-2 rounded-md"
+            placeholder="e.g. New, Bestseller, Gift"
+          />
+        </div>
 
-            {/* Product Price */}
-            <div className="flex flex-col">
-              <label htmlFor="productPrice" className="text-lg font-medium mb-1">Product Price</label>
-              <input
-                type="number"
-                id="productPrice"
-                value={productPrice}
-                onChange={handleProductPriceChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter product price"
-                required
-              />
-            </div>
+        {/* Category */}
+        <div>
+          <label className="block mb-1 font-medium">Category</label>
+          <select
+            value={categoryId}
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              setCategoryId(selectedId);
 
-            {/* Tags */}
-            <div className="flex flex-col">
-              <label htmlFor="productTags" className="text-lg font-medium mb-1">Product Tags</label>
-              <input
-                type="text"
-                id="productTags"
-                value={productTags}
-                onChange={handleProductTagsChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter product tags (comma separated)"
-                required
-              />
-            </div>
+              const selectedCategory = categories.find(
+                (cat) => cat._id === selectedId
+              );
+              if (selectedCategory && selectedCategory.subcategories) {
+                setSubcategories(selectedCategory.subcategories);
+                console.log("Subcategories:", selectedCategory.subcategories);
+              } else {
+                setSubcategories([]); // no subcategories
+              }
+            }}
+            className="w-full border border-gray-300 p-2 rounded-md"
+            required
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-            {/* SKU */}
-            <div className="flex flex-col">
-              <label htmlFor="productSKU" className="text-lg font-medium mb-1">Product SKU</label>
-              <input
-                type="text"
-                id="productSKU"
-                value={productSKU}
-                onChange={handleProductSKUChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter product SKU"
-                required
-              />
-            </div>
-
-            {/* Stock Quantity */}
-            <div className="flex flex-col">
-              <label htmlFor="productStockQuantity" className="text-lg font-medium mb-1">Stock Quantity</label>
-              <input
-                type="number"
-                id="productStockQuantity"
-                value={productStockQuantity}
-                onChange={handleProductStockQuantityChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter stock quantity"
-                required
-              />
-            </div>
-
-            {/* Weight */}
-            <div className="flex flex-col">
-              <label htmlFor="productWeight" className="text-lg font-medium mb-1">Weight (grams)</label>
-              <input
-                type="number"
-                id="productWeight"
-                value={productWeight}
-                onChange={handleProductWeightChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter product weight"
-                required
-              />
-            </div>
-
-            {/* Material */}
-            <div className="flex flex-col">
-              <label htmlFor="productMaterial" className="text-lg font-medium mb-1">Material Type</label>
-              <input
-                type="text"
-                id="productMaterial"
-                value={productMaterial}
-                onChange={handleProductMaterialChange}
-                className="p-2 border border-gray-300 rounded-md"
-                placeholder="Enter material type (e.g., Gold, Silver)"
-                required
-              />
-            </div>
-
-            {/* Category Dropdown */}
-            <div className="flex flex-col">
-              <label htmlFor="category" className="text-lg font-medium mb-1">Select Category</label>
+        {/* Subcategory */}
+        <div>
+          <label className="block mb-1 font-medium">Subcategory</label>
+          {subcategories.length > 0 && (
+            <div className="">
               <select
-                id="category"
-                value={productCategory}
-                onChange={handleCategoryChange}
-                className="p-2 border border-gray-300 rounded-md"
-                required
+                value={subCategoryId}
+                onChange={(e) => setSubCategoryId(e.target.value)}
+                className="w-full border border-gray-300 p-2 rounded-md"
               >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category.id} value={category.id}>
-                    {category.name}
+                <option value="">Select Subcategory</option>
+                {subcategories.map((sub) => (
+                  <option key={sub._id} value={sub._id}>
+                    {sub.name}
                   </option>
                 ))}
               </select>
             </div>
+          )}
+        </div>
 
-            {/* Subcategory Dropdown */}
-            {productCategory && (
-              <div className="flex flex-col">
-                <label htmlFor="subcategory" className="text-lg font-medium mb-1">Select Subcategory</label>
-                <select
-                  id="subcategory"
-                  value={productSubCategory}
-                  onChange={handleSubCategoryChange}
-                  className="p-2 border border-gray-300 rounded-md"
-                  required
-                >
-                  <option value="">Select Subcategory</option>
-                  {subcategories.map((subCategory, index) => (
-                    <option key={index} value={subCategory}>
-                      {subCategory}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+        {/* Status */}
+        <div>
+          <label className="block mb-1 font-medium">Status</label>
+          <select
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            className="w-full border border-gray-300 p-2 rounded-md"
+          >
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
 
-            {/* Product Image */}
-            <div className="flex flex-col">
-              <label htmlFor="productImage" className="text-lg font-medium mb-1">Product Image</label>
-              <input
-                type="file"
-                id="productImage"
-                onChange={handleImageChange}
-                className="p-2 border border-gray-300 rounded-md"
-                accept="image/*"
-                required
-              />
-              {/* Image Preview */}
-              {imagePreview && (
-                <div className="mt-4">
-                  <h3 className="text-sm font-medium">Image Preview:</h3>
-                  <img
-                    src={imagePreview}
-                    alt="Product Preview"
-                    className="mt-2 w-32 h-32 object-cover rounded-md"
+        {/* Thumbnail Upload */}
+        <div>
+          <label className="block mb-1 font-medium">Thumbnail Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleThumbnailChange}
+            className="w-full border border-gray-300 p-2 rounded-md"
+            required
+          />
+          {thumbnailPreview && (
+            <img
+              src={thumbnailPreview}
+              alt="Thumbnail"
+              className="mt-2 w-28 h-28 object-cover rounded-md"
+            />
+          )}
+        </div>
+
+        {/* Description - Full width row */}
+        <div className="md:col-span-2">
+          <label className="block mb-1 font-medium">Description</label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border border-gray-300 p-3 rounded-md"
+            rows="4"
+            placeholder="Describe the product in detail..."
+          ></textarea>
+        </div>
+
+        <div className="md:col-span-2">
+          <h3 className="text-xl font-semibold mb-4 text-cyan-800">
+            Product Variants
+          </h3>
+
+          {variants.map((variant, index) => (
+            <div
+              key={index}
+              className="border p-4 mb-4 rounded-md shadow-sm space-y-4 bg-gray-50"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block mb-1">Metal Color</label>
+                  <select
+                    value={variant.metalColor}
+                    onChange={(e) =>
+                      handleVariantChange(index, "metalColor", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                  >
+                    <option value="">Select</option>
+                    <option value="Yellow Gold">Yellow Gold</option>
+                    <option value="Rose Gold">Rose Gold</option>
+                    <option value="White Gold">White Gold</option>
+                    <option value="Silver">Silver</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1">Carat</label>
+                  <select
+                    value={variant.carat}
+                    onChange={(e) =>
+                      handleVariantChange(index, "carat", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                  >
+                    <option value="">Select</option>
+                    <option value="14KT">14KT</option>
+                    <option value="18KT">18KT</option>
+                    <option value="22KT">22KT</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block mb-1">Size (for rings)</label>
+                  <input
+                    type="text"
+                    value={variant.size}
+                    onChange={(e) =>
+                      handleVariantChange(index, "size", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                    placeholder="e.g. 6, 7, 8..."
                   />
+                </div>
+
+                <div>
+                  <label className="block mb-1">SKU</label>
+                  <input
+                    type="text"
+                    value={variant.sku}
+                    onChange={(e) =>
+                      handleVariantChange(index, "sku", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                    placeholder="Unique SKU"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1">Stock</label>
+                  <input
+                    type="number"
+                    value={variant.stock}
+                    onChange={(e) =>
+                      handleVariantChange(index, "stock", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                    placeholder="Stock quantity"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1">Total Price</label>
+                  <input
+                    type="number"
+                    value={variant.totalPrice}
+                    onChange={(e) =>
+                      handleVariantChange(index, "totalPrice", e.target.value)
+                    }
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                    placeholder="₹ Total price"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1">Weight (g)</label>
+                  <input
+                    type="number"
+                    value={variant.weightInGrams}
+                    onChange={(e) =>
+                      handleVariantChange(
+                        index,
+                        "weightInGrams",
+                        e.target.value
+                      )
+                    }
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                    placeholder="Weight in grams"
+                  />
+                </div>
+
+                <div>
+                  <label className="block mb-1">Upload Variant Images</label>
+                  <input
+                    type="file"
+                    multiple
+                    onChange={(e) =>
+                      handleVariantImageChange(index, e.target.files)
+                    }
+                    className="w-full border border-gray-300 p-2 rounded-md"
+                    accept="image/*"
+                  />
+                </div>
+              </div>
+
+              {/* 🗑️ Remove Variant (if more than one) */}
+              {variants.length > 1 && (
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => removeVariant(index)}
+                    className="text-sm text-red-600 hover:underline"
+                  >
+                    Remove this variant
+                  </button>
                 </div>
               )}
             </div>
+          ))}
 
-            {/* Submit Button */}
-            <div>
-              <button
-                type="submit"
-                className="bg-blue-500 text-white px-6 py-3 rounded-md shadow-md hover:bg-blue-600 transition duration-300"
-              >
-                Add Product
-              </button>
-            </div>
-          </form>
+          {/* ➕ Add Variant Button */}
+          <div className="flex justify-end gap-4">
+            <button
+              type="button"
+              onClick={addNewVariant}
+              className="bg-violet-800 text-white px-4 py-2 rounded-md hover:bg-violet-700 transition"
+            >
+              + Add Another Variant
+            </button>
+            {/* Submit Button - Full width row */}
+            <button
+              type="submit"
+              className="bg-blue-900 text-white px-6 py-3 rounded-md hover:bg-blue-800 transition"
+            >
+              Add Product
+            </button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 };

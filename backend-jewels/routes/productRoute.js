@@ -1,22 +1,27 @@
-// // routes/productRoutes.js
+// routes/productRoutes.js
 
-// const express = require("express");
-// const router = express.Router();
-// const { upload } = require("../config/multerConfig");
+const express = require("express");
+const router = express.Router();
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+const {
+  createProduct,
+  getAllProducts,
+  updateProduct,
+  deleteProduct,
+} = require("../controller/productController");
+const { isAdminLoggedIn } = require("../middleware/authmiddleware");
 
-// const {
-//   createProduct,
-//   getAllProducts,
-//   updateProduct,
-//   deleteProduct,
-// } = require("../controller/productController");
-
-// // Create a new product
-// router.post("/add", upload.array("images", 5), createProduct);
+// Create a new product
+router.post(
+  "/add-product",
+  //   isAdminLoggedIn,
+  upload.any(),
+  createProduct
+);
 // router.put("/update/:id", upload.array("images", 5), updateProduct);
 // router.delete("/delete/:id", deleteProduct);
-
-// // View all products
 // router.get("/", getAllProducts);
 
-// module.exports = router;
+module.exports = router;

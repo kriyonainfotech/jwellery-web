@@ -65,5 +65,4 @@ const uploadImageToCloudinary = async (file, folder) => {
   }
 };
 
-
 module.exports = uploadImageToCloudinary;
