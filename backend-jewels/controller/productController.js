@@ -9,6 +9,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 // Create a new product
+
 exports.createProduct = async (req, res) => {
   try {
     console.log("🚀 [API] Create Product Initiated...");
@@ -99,6 +100,46 @@ exports.createProduct = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "❌ Error creating product.",
+    });
+  }
+};
+
+exports.getAllProducts = async (req, res) => {
+  try {
+    console.log("📦 [API] Fetching all products...");
+
+    const products = await Product.find()
+      .populate("categoryId", "name") // populate category name only
+      .populate("subCategoryId", "name") // populate subcategory name only
+      .sort({ createdAt: -1 });
+
+    if (!products.length) {
+      console.log("❌ No products found.");
+      return res.status(404).json({
+        success: false,
+        message: "No products found.",
+      });
+    }
+
+    console.log(`✅ Found ${products.length} products`);
+    products.forEach((prod, index) => {
+      console.log(
+        `🔹 ${index + 1}. ${prod.title} | 💎 Variants: ${
+          prod.variants.length
+        } | 🏷️ Category: ${prod.categoryId?.name}`
+      );
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "🎉 Products fetched successfully",
+      data: products,
+    });
+  } catch (error) {
+    console.log("🔥 Error fetching products:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "❌ Server Error: Could not fetch products",
     });
   }
 };

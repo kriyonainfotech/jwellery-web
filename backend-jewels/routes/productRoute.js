@@ -22,6 +22,6 @@ router.post(
 );
 // router.put("/update/:id", upload.array("images", 5), updateProduct);
 // router.delete("/delete/:id", deleteProduct);
-// router.get("/", getAllProducts);
+router.get("/all", getAllProducts);
 
 module.exports = router;
