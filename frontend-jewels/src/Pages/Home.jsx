@@ -6,6 +6,7 @@ import Register from "./Register";
 import { HomePage } from "./HomePage";
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
+import ProductPage from "./productPage";
 
 const Home = () => {
   return (
@@ -16,6 +17,12 @@ const Home = () => {
         <Route path="/about" element={<About />} />
         <Route path="/account/login" element={<Account />} />
         <Route path="/account/register" element={<Register />} />
+        <Route path="/shop/category/:categoryId" element={<ProductPage />} />
+        {/* <Route path="/product/:productId" element={<ProductDetails />} /> */}
+        <Route
+          path="/shop/subcategory/:subcategoryId"
+          element={<ProductPage />}
+        />
       </Routes>
       <Footer />
     </>

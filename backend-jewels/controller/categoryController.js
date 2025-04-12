@@ -94,6 +94,7 @@
 const Category = require("../models/categoryModel");
 const uploadImageToCloudinary = require("../middleware/uploadTocloud");
 const Subcategory = require("../models/subCategoryModel"); // 👈 import this
+const Product = require("../models/productModel");
 
 exports.getAllCategories = async (req, res) => {
   try {
@@ -129,7 +130,6 @@ exports.getAllCategories = async (req, res) => {
     res.status(500).json({ message: "Something went wrong" });
   }
 };
-
 
 // ✅ Get single category by ID
 exports.getCategoryById = async (req, res) => {
@@ -168,7 +168,7 @@ exports.createCategory = async (req, res) => {
     const imageUrl = await uploadImageToCloudinary(req.file, "categories");
 
     const category = await Category.create({
-      name:categoryName,
+      name: categoryName,
       image: imageUrl,
     });
 
@@ -237,5 +237,40 @@ exports.deleteCategory = async (req, res) => {
   } catch (err) {
     console.error("🔥 Error deleting category:", err.message);
     res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
+exports.getProductsByCategory = async (req, res) => {
+  try {
+    console.log("🛍️ [API] Get Products by Category");
+
+    const { categoryId } = req.params;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 9;
+    const skip = (page - 1) * limit;
+
+    console.log(`📦 Category ID: ${categoryId}`);
+    console.log(`📄 Page: ${page}, 🔢 Limit: ${limit}`);
+
+    const products = await Product.find({ categoryId })
+      .skip(skip)
+      .limit(limit)
+      .populate("categoryId subCategoryId");
+
+    const total = await Product.countDocuments({ categoryId });
+
+    res.status(200).json({
+      success: true,
+      message: "✅ Products fetched by category",
+      currentPage: page,
+      totalProducts: total,
+      products,
+    });
+  } catch (error) {
+    console.log("❌ Error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 };

@@ -6,18 +6,20 @@ import { Link } from "react-router-dom";
 const apiurl = import.meta.env.VITE_API_URL;
 
 const AddProduct = () => {
-  const navigate = useNavigate();
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [thumbnail, setThumbnail] = useState(null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [categoryId, setCategoryId] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [subcategories, setSubcategories] = useState([]);
   const [subCategoryId, setSubCategoryId] = useState("");
   const [tags, setTags] = useState("");
   const [status, setStatus] = useState("active");
+  const [thumbnailFile, setThumbnailFile] = useState(null);
+  const [categories, setCategories] = useState([]);
+  const [subcategories, setSubcategories] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
   const [variants, setVariants] = useState([
     {
       metalColor: "",
@@ -32,19 +34,6 @@ const AddProduct = () => {
       images: [],
     },
   ]);
-
-  const handleVariantChange = (index, field, value) => {
-    const updatedVariants = [...variants];
-    updatedVariants[index][field] = value;
-    setVariants(updatedVariants);
-  };
-
-  const handleVariantImageChange = (index, files) => {
-    const fileArray = Array.from(files);
-    const updatedVariants = [...variants];
-    updatedVariants[index].images = fileArray;
-    setVariants(updatedVariants);
-  };
 
   const addNewVariant = () => {
     setVariants([
@@ -63,6 +52,11 @@ const AddProduct = () => {
       },
     ]);
   };
+  const handleVariantChange = (index, field, value) => {
+    const updatedVariants = [...variants];
+    updatedVariants[index][field] = value;
+    setVariants(updatedVariants);
+  };
 
   const removeVariant = (index) => {
     const updatedVariants = [...variants];
@@ -70,6 +64,20 @@ const AddProduct = () => {
     setVariants(updatedVariants);
   };
 
+  // Add these handler functions
+  const handleThumbnailChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setThumbnailFile(file);
+      setThumbnailPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleVariantImageChange = (variantIndex, files) => {
+    const updatedVariants = [...variants];
+    updatedVariants[variantIndex].images = Array.from(files);
+    setVariants(updatedVariants);
+  };
   // categories and subcategories
   const fetchCategories = async () => {
     // ✅ Check localStorage first
@@ -100,74 +108,80 @@ const AddProduct = () => {
     fetchCategories();
   }, []);
 
-  // const subcategories = [
-  //   { _id: "abc", name: "Rose Gold" },
-  //   { _id: "def", name: "Yellow Gold" },
-  // ];
-
-  const handleThumbnailChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setThumbnail(file);
-      setThumbnailPreview(URL.createObjectURL(file));
-    }
+  const validateVariants = () => {
+    return variants.every(
+      (v) => v.metalColor && v.carat && v.sku && v.totalPrice
+    );
   };
 
+  // Updated handleSubmit function
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formData = new FormData();
-
-    formData.append("title", title);
-    formData.append("description", description);
-    formData.append("categoryId", categoryId);
-    formData.append("subCategoryId", subCategoryId);
-    formData.append("status", status);
-    formData.append("tags", tags);
-
-    // Append thumbnail image
-    if (thumbnail) {
-      formData.append("thumbnail", thumbnail);
+    if (!validateVariants()) {
+      toast.error("Please fill all required variant fields");
+      return;
     }
-
-    // Prepare variants
-    const updatedVariants = variants.map((variant, i) => {
-      const { images, ...rest } = variant;
-      return rest; // images will be handled separately
-    });
-
-    formData.append("variants", JSON.stringify(updatedVariants));
-
-    // Append all variant images in a nested way
-    variants.forEach((variant, i) => {
-      variant.images.forEach((file, j) => {
-        formData.append(`variantImages_${i}_${j}`, file); // like variantImages_0_0
-      });
-    });
-
-    console.log("🚀 Submitting formData:", formData);
+    setIsSubmitting(true);
 
     try {
-      const res = await axios.post(`${apiurl}/product/add-product`, formData, {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+      const formData = new FormData();
+
+      // Prepare product data
+      const productData = {
+        title: title.trim(),
+        categoryId,
+        subCategoryId,
+        tags: tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter((t) => t),
+        description: description.trim(),
+        status: status,
+        variants: variants.map((variant) => ({
+          ...variant,
+          // Convert numbers from strings
+          stock: Number(variant.stock),
+          totalPrice: Number(variant.totalPrice),
+          weightInGrams: Number(variant.weightInGrams),
+          // Remove image files from data (will be sent as files)
+          images: [],
+        })),
+      };
+
+      formData.append("product", JSON.stringify(productData));
+      formData.append("thumbnail", thumbnailFile);
+
+      // Append variant images
+      variants.forEach((variant, index) => {
+        variant.images.forEach((file) => {
+          formData.append(`variants[${index}][images]`, file);
+        });
       });
 
-      console.log(res, "res");
-
-      if (res.data.success) {
-        console.log("✅ Product added:", res.data);
-        navigate("/admin/products");
-      } else {
-        console.error("❌ API failed:", res.data.message);
-      }
-    } catch (err) {
-      console.error("🔥 API Error:", err.message);
+      // API call
+      const response = await axios.post(
+        `${apiurl}/product/add-product`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log("Response:", response.data);
+      toast.success("Product added successfully!");
+      navigate("/admin/products");
+    } catch (error) {
+      console.error("Submission error:", error);
+      const errorMessage =
+        error.response?.data?.error ||
+        error.message ||
+        "Failed to add product. Please check your inputs.";
+      toast.error(errorMessage);
+    } finally {
+      setIsSubmitting(false);
     }
   };
-
   return (
     <div className="max-w-6xl mx-auto mt-10 px-4">
       <h2 className="text-2xl font-bold text-cyan-900 mb-6">
@@ -311,7 +325,7 @@ const AddProduct = () => {
               key={index}
               className="border p-4 mb-4 rounded-md shadow-sm space-y-4 bg-gray-50"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                 <div>
                   <label className="block mb-1">Metal Color</label>
                   <select
@@ -428,6 +442,146 @@ const AddProduct = () => {
                     accept="image/*"
                   />
                 </div>
+                {/* 
+                <div className="">
+                  <label className="block mb-1 font-medium">
+                    Diamond Details
+                  </label>
+
+                  {variant.diamondDetails.length === 0 ? (
+                    <button
+                      type="button"
+                      className="text-sm text-orange-600"
+                      onClick={() => {
+                        const updated = [...variants];
+                        updated[index].diamondDetails = [
+                          {
+                            stoneType: "",
+                            color: "",
+                            clarity: "",
+                            shape: "",
+                            weight: 0,
+                          },
+                        ];
+                        setVariants(updated);
+                      }}
+                    >
+                      + Add Diamond Details
+                    </button>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2 mb-2">
+                      <input
+                        type="text"
+                        placeholder="Stone Type"
+                        value={variant.diamondDetails[0].stoneType}
+                        onChange={(e) => {
+                          const updated = [...variants];
+                          updated[index].diamondDetails[0].stoneType =
+                            e.target.value;
+                          setVariants(updated);
+                        }}
+                        className="p-2 border border-gray-300 rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Color"
+                        value={variant.diamondDetails[0].color}
+                        onChange={(e) => {
+                          const updated = [...variants];
+                          updated[index].diamondDetails[0].color =
+                            e.target.value;
+                          setVariants(updated);
+                        }}
+                        className="p-2 border border-gray-300 rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Clarity"
+                        value={variant.diamondDetails[0].clarity}
+                        onChange={(e) => {
+                          const updated = [...variants];
+                          updated[index].diamondDetails[0].clarity =
+                            e.target.value;
+                          setVariants(updated);
+                        }}
+                        className="p-2 border border-gray-300 rounded"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Shape"
+                        value={variant.diamondDetails[0].shape}
+                        onChange={(e) => {
+                          const updated = [...variants];
+                          updated[index].diamondDetails[0].shape =
+                            e.target.value;
+                          setVariants(updated);
+                        }}
+                        className="p-2 border border-gray-300 rounded"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Weight"
+                        value={variant.diamondDetails[0].weight}
+                        onChange={(e) => {
+                          const updated = [...variants];
+                          updated[index].diamondDetails[0].weight = parseFloat(
+                            e.target.value
+                          );
+                          setVariants(updated);
+                        }}
+                        className="p-2 border border-gray-300 rounded"
+                      />
+                    </div>
+                  )}
+                </div> */}
+
+                <div className="">
+                  <label className="block mb-1 font-medium">
+                    Price Breakup
+                  </label>
+                  {variant.priceBreakup?.map((price, pIndex) => (
+                    <div key={pIndex} className="mb-2 flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Label"
+                        value={price.label}
+                        onChange={(e) => {
+                          const updated = [...variants];
+                          updated[index].priceBreakup[pIndex].label =
+                            e.target.value;
+                          setVariants(updated);
+                        }}
+                        className="p-2 border rounded w-[60%]"
+                      />
+                      <input
+                        type="number"
+                        placeholder="Amount"
+                        value={price.amount}
+                        onChange={(e) => {
+                          const updated = [...variants];
+                          updated[index].priceBreakup[pIndex].amount =
+                            parseFloat(e.target.value);
+                          setVariants(updated);
+                        }}
+                        className="p-2 border rounded w-[30%]"
+                      />
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="mt-2 text-sm text-orange-600"
+                    onClick={() => {
+                      const updated = [...variants];
+                      updated[index].priceBreakup.push({
+                        label: "",
+                        amount: 0,
+                      });
+                      setVariants(updated);
+                    }}
+                  >
+                    + Add Price Breakup
+                  </button>
+                </div>
               </div>
 
               {/* 🗑️ Remove Variant (if more than one) */}
@@ -457,9 +611,39 @@ const AddProduct = () => {
             {/* Submit Button - Full width row */}
             <button
               type="submit"
-              className="bg-blue-900 text-white px-6 py-3 rounded-md hover:bg-blue-800 transition"
+              disabled={isSubmitting}
+              className={`bg-blue-900 text-white px-6 py-3 rounded-md hover:bg-blue-800 transition relative ${
+                isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+              }`}
             >
-              Add Product
+              {isSubmitting ? (
+                <div className="flex items-center justify-center gap-2">
+                  {/* Loading spinner */}
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Adding Product...
+                </div>
+              ) : (
+                "Add Product"
+              )}
             </button>
           </div>
         </div>

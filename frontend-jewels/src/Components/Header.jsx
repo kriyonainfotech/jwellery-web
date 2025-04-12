@@ -6,6 +6,10 @@ import { FaRegHeart, FaRegUser } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
 import { TiMediaEject } from "react-icons/ti";
 import { FiSearch, FiX } from "react-icons/fi";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { FaAngleDown } from "react-icons/fa";
+const apiurl = import.meta.env.VITE_API_URL;
 
 const Header = ({ isHomepage }) => {
   const [showMenuModal, setShowMenuModal] = useState(false);
@@ -13,6 +17,42 @@ const Header = ({ isHomepage }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const user = JSON.parse(localStorage.getItem("userInfo"));
   const isAdmin = user?.role === "admin" || user?.isAdmin;
+  const [categories, setCategories] = useState([]);
+  const [activeCategory, setActiveCategory] = useState(null);
+
+  const dropdownStyles = {
+    dropdown: {
+      position: "absolute",
+      top: "40px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "min(90vw, 1200px)", // 🔥 Responsive width
+      backgroundColor: "#fff",
+      color: "#000",
+      borderRadius: "8px",
+      boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+      zIndex: 1000,
+      padding: "2rem",
+      display: "flex",
+      gap: "2rem",
+      transition: "all 0.3s ease",
+      opacity: activeCategory ? 1 : 0,
+      visibility: activeCategory ? "visible" : "hidden",
+    },
+    subcategories: {
+      flex: 1.5,
+      display: "flex",
+      flexDirection: "column",
+      gap: "1rem",
+    },
+    imageContainer: {
+      flex: 1,
+      borderRadius: "8px",
+      overflow: "hidden",
+      width: "100%",
+      height: "500px",
+    },
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -25,6 +65,34 @@ const Header = ({ isHomepage }) => {
 
   const location = useLocation();
   const isHome = isHomepage || location.pathname === "/";
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const local = localStorage.getItem("categories");
+        if (local) {
+          // console.log("Local categories found:", local);
+          setCategories(JSON.parse(local));
+        } else {
+          const res = await axios.get(`${apiurl}/category/getallcategories`);
+
+          console.log(res.data, "categories");
+
+          if (res.data?.categories) {
+            setCategories(res.data.categories);
+            localStorage.setItem(
+              "categories",
+              JSON.stringify(res.data.categories)
+            );
+          }
+        }
+      } catch (err) {
+        console.log("❌ Failed to load categories:", err.message);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <header
@@ -144,78 +212,62 @@ const Header = ({ isHomepage }) => {
         </div>
       </nav>
 
-      {/* Off-Canvas Menu */}
-      {/* <input type="checkbox" id="menu-toggle" className="menu-toggle" />
-      <div className="menu-overlay">
-        <div className="off-canvas-content">
-          <div className="menu-close-button">
-            <label
-              htmlFor="menu-toggle"
-              className="text-gray-700 opacity-60 cursor-pointer"
-            >
-              X
-            </label>
-          </div>
-
-          <ul className="menu-items">
-            <li>
-              <Link to="/account/login" className="menu-item">
-                My Profile
-              </Link>
-            </li>
-            <li>
-              <Link
-                // to="/orders"
-                className="menu-item"
+      {/* // Modify the categories map in the return statement */}
+      {categories?.length > 0 && (
+        <div className="position-relative">
+          <div className="container mx-auto flex flex-wrap justify-center items-center gap-6 py-2">
+            {categories.map((cat) => (
+              <div
+                key={cat._id}
+                className="relative pb-2"
+                onMouseEnter={() => setActiveCategory(cat)}
+                onMouseLeave={() => setActiveCategory(null)}
               >
-                My Orders
-              </Link>
-            </li>
-            <li>
-              <Link
-                // to="/cart"
-                className="menu-item"
-              >
-                My Cart
-              </Link>
-            </li>
-            {isAdmin && (
-              <li>
-                <Link to="/admin/dashboard" className="menu-item">
-                  Admin Panel
+                <Link
+                  to={`/shop/category/${cat._id}`}
+                  className="flex items-center montserrat text-white gap-1 text-md hover:text-cyan-200 transition no-underline position-relative"
+                >
+                  {cat.name} <FaAngleDown className="text-xs mt-[1px]" />
                 </Link>
-              </li>
-            )}
-          </ul>
-        </div>
-      </div>
 
-      <input type="checkbox" id="search-toggle" className="search-toggle" />
-      <div className="search-overlay">
-        <div className="off-canvas-content">
-          <div className="search-close-button">
-            <label
-              htmlFor="search-toggle"
-              className="text-gray-700 opacity-60 cursor-pointer"
-            >
-              X
-            </label>
-          </div>
-          <div className="px-2 mt-2">
-            <input
-              type="text"
-              placeholder="Search ... "
-              className="border w-full py-2 ps-3"
-              name=""
-              id=""
-            />
+                {/* Dropdown for active category */}
+                {activeCategory?._id === cat._id &&
+                  cat.subcategories?.length > 0 && (
+                    <div
+                      style={dropdownStyles.dropdown}
+                      onMouseEnter={() => setActiveCategory(cat)}
+                      onMouseLeave={() => setActiveCategory(null)}
+                    >
+                      <div style={dropdownStyles.subcategories}>
+                        {cat.subcategories.map((sub) => (
+                          <Link
+                            key={sub._id}
+                            to={`/shop/subcategory/${sub._id}`}
+                            className="text-gray-900 text-lg montserrat transition-colors py-2 px-4 rounded-lg no-underline hover:bg-gray-300"
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
+
+                      <div style={dropdownStyles.imageContainer}>
+                        <img
+                          src={cat.image}
+                          alt={cat.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    </div>
+                  )}
+              </div>
+            ))}
           </div>
         </div>
-      </div> */}
+      )}
 
       {/* Menu Modal */}
       {showMenuModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-start">
+        <div className="fixed inset-0 z-50 h-[100vh] bg-black bg-opacity-50 flex items-start justify-start">
           <div className="bg-white w-[20%] h-full p-6 shadow-lg overflow-y-auto">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold">Menu</h2>
@@ -264,7 +316,7 @@ const Header = ({ isHomepage }) => {
 
       {/* Search Modal */}
       {showSearchModal && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-start">
+        <div className="fixed inset-0 z-50 h-[100vh] bg-black bg-opacity-50 flex items-start justify-start">
           <div className="bg-white w-[40%] h-full p-6 shadow-lg overflow-y-auto">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold">Search</h2>

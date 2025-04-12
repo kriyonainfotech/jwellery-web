@@ -91,53 +91,81 @@ const ViewProduct = () => {
               <th className="px-5 py-3 border-b text-center">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product._id} className="text-sm">
-                <td className="px-6 py-4 border-b">
-                  <img
-                    src={product.thumbnail || "/no-image.png"}
-                    className="w-14 h-14 object-cover rounded"
-                    alt={product.title}
+
+          {products.length === 0 ? (
+            <div className="text-center py-12 w-full flex flex-col justify-center rounded-lg">
+              <div className="text-gray-500 text-xl mb-4">
+                <svg
+                  className="w-16 h-16 mx-auto text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                   />
-                </td>
-                <td className="px-5 py-3 border-b">producttitle</td>
-                <td className="px-5 py-3 border-b">
-                  {product.categoryId?.name}
-                </td>
-                <td className="px-5 py-3 border-b">{product.description}</td>
-                <td className="px-5 py-3 border-b">
-                  {product.tags?.join(", ")}
-                </td>
-                <td className="px-5 py-3 border-b text-center">
-                  <button
-                    className="text-indigo-600 hover:underline"
-                    onClick={() => setSelectedProduct(product)}
-                  >
-                    {product.variants?.length} Variant
-                    {product.variants?.length > 1 ? "s" : ""}
-                  </button>
-                </td>
-                <td className="px-5 py-3 border-b text-center capitalize">
-                  {product.status?.status ? "Active" : "Inactive"}
-                </td>
-                <td className="px-5 py-3 border-b text-center">
-                  <button
-                    className="text-blue-500 hover:text-blue-700 mx-2"
-                    onClick={() => alert(`Edit ${product.title}`)}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    className="text-red-500 hover:text-red-700 mx-2"
-                    onClick={() => alert(`Delete ${product.title}`)}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
+                </svg>
+              </div>
+              <p className="text-gray-600 text-lg font-medium">
+                No products available at the moment
+              </p>
+            </div>
+          ) : (
+            <>
+              <tbody>
+                {products.map((product) => (
+                  <tr key={product._id} className="text-sm">
+                    <td className="px-6 py-4 border-b">
+                      <img
+                        src={product.thumbnail || "/no-image.png"}
+                        className="w-14 h-14 object-cover rounded"
+                        alt={product.title}
+                      />
+                    </td>
+                    <td className="px-5 py-3 border-b">{product.title}</td>
+                    <td className="px-5 py-3 border-b">
+                      {product.categoryId?.name}
+                    </td>
+                    <td className="px-5 py-3 border-b">
+                      {product.description}
+                    </td>
+                    <td className="px-5 py-3 border-b">
+                      {product.tags?.join(", ")}
+                    </td>
+                    <td className="px-5 py-3 border-b text-center">
+                      <button
+                        className="text-indigo-600 hover:underline"
+                        onClick={() => setSelectedProduct(product)}
+                      >
+                        {product.variants?.length} Variant
+                        {product.variants?.length > 1 ? "s" : ""}
+                      </button>
+                    </td>
+                    <td className="px-5 py-3 border-b text-center capitalize">
+                      {product.status?.status ? "Active" : "Inactive"}
+                    </td>
+                    <td className="px-5 py-3 border-b text-center">
+                      <button
+                        className="text-blue-500 hover:text-blue-700 mx-2"
+                        onClick={() => alert(`Edit ${product.title}`)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="text-red-500 hover:text-red-700 mx-2"
+                        onClick={() => alert(`Delete ${product.title}`)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </>
+          )}
         </table>
 
         {/* 🔍 Variant Modal */}

@@ -6,6 +6,7 @@ const {
   getCategoryById,
   updateCategory,
   deleteCategory,
+  getProductsByCategory,
 } = require("../controller/categoryController");
 
 const multer = require("multer");
@@ -20,7 +21,7 @@ router.post(
   upload.single("image"),
   createCategory
 );
-
+router.get("/:categoryId", getProductsByCategory);
 router.get("/getallcategories", getAllCategories); // 📦 All
 
 // router.get("/:id", getCategoryById); // 🔍 One

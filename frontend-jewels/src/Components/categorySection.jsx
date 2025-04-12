@@ -1,46 +1,61 @@
-import React from "react";
-import '../styles/home.css'
+import React, { useEffect, useState } from "react";
+import "../styles/home.css";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
+const apiurl = import.meta.env.VITE_API_URL;
 
 const CategorySection = () => {
   // Static array of categories
-  const categories = [
-    {
-      id: 1,
-      name: "Jewelry",
-      imageUrl: "https://materialgood.com/cdn/shop/files/Slice_6_3f37ce4b-97e9-4cfc-9a85-1dfb975fcd35.png?v=1732131633", // Replace with actual image path
-    },
-    {
-      id: 2,
-      name: "Watches",
-      imageUrl: "https://materialgood.com/cdn/shop/files/Slice_20_d0b96853-358c-4226-a46c-e9dab3b3e610.png?v=1732131620", // Replace with actual image path
-    },
-    {
-      id: 3,
-      name: "Rings",
-      imageUrl: "https://materialgood.com/cdn/shop/files/Slice_8_5463ecd9-73aa-4411-afea-15be32820a7e.png?v=1732131608", // Replace with actual image path
-    },
-    {
-      id: 4,
-      name: "Earrings",
-      imageUrl: "https://materialgood.com/cdn/shop/files/Slice_9_357c53cf-f42a-42b6-85f4-cca833bf19c3.png?v=1732131597", // Replace with actual image path
-    },
-  ];
+  const [categories, setCategories] = useState([]);
+
+  const fetchCategories = async () => {
+    // ✅ Check localStorage first
+    const cached = localStorage.getItem("categories");
+    if (cached) {
+      console.log("📦 Using cached categories from localStorage");
+      setCategories(JSON.parse(cached));
+      return;
+    }
+
+    // 🧠 If not cached, fetch from API
+    try {
+      console.log("🌐 Fetching categories from API...");
+      const res = await axios.get(`${apiurl}/category/getallcategories`);
+      if (res.data.success && res.data.categories) {
+        setCategories(res.data.categories);
+        localStorage.setItem("categories", JSON.stringify(res.data.categories));
+        console.log("✅ Categories saved to localStorage");
+      } else {
+        console.error("⚠️ No categories received from API");
+      }
+    } catch (err) {
+      console.error("❌ Error fetching categories:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
 
   const bestsellers = [
     {
       id: 1,
       title: "Elegant Chains",
-      imageUrl: "https://broskizz.com/cdn/shop/files/H76c127326e4d44f9bfe705c794541aa5M.jpg?v=1712263270&width=540", // Replace with actual image path
+      imageUrl:
+        "https://broskizz.com/cdn/shop/files/H76c127326e4d44f9bfe705c794541aa5M.jpg?v=1712263270&width=540", // Replace with actual image path
     },
     {
       id: 2,
       title: "Luxury Ring",
-      imageUrl: "https://broskizz.com/cdn/shop/files/Hd7950bb2c25642d292d1936d4729cec6K-2-1.jpg?v=1712263608&width=720", // Replace with actual image path
+      imageUrl:
+        "https://broskizz.com/cdn/shop/files/Hd7950bb2c25642d292d1936d4729cec6K-2-1.jpg?v=1712263608&width=720", // Replace with actual image path
     },
     {
       id: 3,
       title: "Classic Watch",
-      imageUrl: "https://broskizz.com/cdn/shop/files/WhatsApp-Image-2023-08-09-at-7.32.32-AM.jpg?v=1712263559&width=720", // Replace with actual image path
+      imageUrl:
+        "https://broskizz.com/cdn/shop/files/WhatsApp-Image-2023-08-09-at-7.32.32-AM.jpg?v=1712263559&width=720", // Replace with actual image path
     },
   ];
   return (
@@ -49,19 +64,19 @@ const CategorySection = () => {
         {/* section 1 */}
         <div className="row">
           <h1 className="uppercase crimson text-center text-2xl sm:text-3xl tracking-wide text-black px-3 px-sm-0">
-            EXPLORE UP TO 20% OFF OUR HOLIDAY COLLECTION
+            EXPLORE OUR COLLECTION
           </h1>
         </div>
         <div className="row mt-5">
           {/* Map through the categories array */}
-          {categories.map((category) => (
-            <div key={category.id} className="col-6 col-lg-3 my-3 my-lg-0">
-              <a href="#" className="item-card">
-                <div className="item-img">
+          {categories.slice(3, 6).map((category) => (
+            <div key={category.id} className="col-6 col-lg-4 my-3 my-lg-0">
+              <Link to={`/shop/category/${category._id}`} className="item-card">
+                <div className="item-img w-full h-[500px]">
                   <img
-                    src={category.imageUrl} // Use dynamic image path
+                    src={category.image} // Use dynamic image path
                     alt={category.name}
-                    className="category-image" // Add appropriate styling class if needed
+                    className="category-image w-full h-full object-cover" // Add appropriate styling class if needed
                   />
                 </div>
                 <div className="item-title cursor-pointer pt-3">
@@ -69,20 +84,20 @@ const CategorySection = () => {
                     {category.name}
                   </p>
                 </div>
-              </a>
+              </Link>
             </div>
           ))}
         </div>
-        <div className="col-12 mt-4">
+        {/* <div className="col-12 mt-4">
           <p className="text-center montserrat uppercase">
             <a
               href=""
-              className="text-gray-800 tracking-wide -2  font-medium border-gray-900 text-sm"
+              className="text-gray-800 tracking-wide -2 font-medium border-gray-900 text-sm"
             >
               explore all
             </a>
           </p>
-        </div>
+        </div> */}
       </div>
 
       {/* section 2 */}

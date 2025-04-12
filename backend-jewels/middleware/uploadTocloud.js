@@ -3,34 +3,6 @@ const cloudinary = require("../config/multerConfig");
 const fs = require("fs");
 const path = require("path");
 
-// const uploadImageToCloudinary = async (file, folder) => {
-//   try {
-//     const compressedPath = path.join(
-//       __dirname,
-//       "../temp",
-//       `compressed-${file.originalname}`
-//     );
-
-//     // Compress image with Sharp (quality = 80)
-//     await sharp(file.buffer).jpeg({ quality: 80 }).toFile(compressedPath);
-
-//     // Upload to Cloudinary
-//     const uploadResult = await cloudinary.uploader.upload(compressedPath, {
-//       folder: `saaraa/${folder}`,
-//       use_filename: true,
-//       unique_filename: false,
-//     });
-
-//     // Clean temp
-//     fs.unlinkSync(compressedPath);
-
-//     return uploadResult.secure_url;
-//   } catch (err) {
-//     console.error("❌ Error uploading image to Cloudinary:", err.message);
-//     throw new Error("Image upload failed");
-//   }
-// };
-
 const uploadImageToCloudinary = async (file, folder) => {
   try {
     const tempDir = path.join(__dirname, "../temp");
@@ -46,7 +18,13 @@ const uploadImageToCloudinary = async (file, folder) => {
     );
 
     // Compress image with Sharp (quality = 80)
-    await sharp(file.buffer).jpeg({ quality: 80 }).toFile(compressedPath);
+    await sharp(file.buffer)
+      .jpeg({ quality: 80 })
+      .toFile(compressedPath)
+      .catch((err) => {
+        console.error("❌ Sharp compression error:", err);
+        throw new Error("Image processing failed");
+      });
 
     // Upload to Cloudinary
     const uploadResult = await cloudinary.uploader.upload(compressedPath, {
