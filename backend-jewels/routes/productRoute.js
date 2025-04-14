@@ -36,6 +36,7 @@ const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 const streamifier = require("streamifier");
 const mongoose = require("mongoose");
+const { getProductById } = require("../controller/productController");
 
 // Cloudinary configuration
 cloudinary.config({
@@ -209,4 +210,5 @@ router.get("/all", async (req, res) => {
   }
 });
 
+router.get("/:productId", getProductById);
 module.exports = router;

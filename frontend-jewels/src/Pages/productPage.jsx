@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 const apiurl = import.meta.env.VITE_API_URL;
 
 const ProductPage = () => {
-    const { categoryId, subcategoryId } = useParams();
+  const { categoryId, subcategoryId } = useParams();
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,75 +19,75 @@ const ProductPage = () => {
     carat: [],
   });
 
-    useEffect(() => {
-      const handleScroll = () => {
-        if (
-          window.innerHeight + window.scrollY >=
-            document.body.offsetHeight - 100 &&
-          !loading
-        ) {
-          setPage((prev) => prev + 1);
-        }
-      };
+  // useEffect(() => {
+  //   const handleScroll = () => {
+  //     if (
+  //       window.innerHeight + window.scrollY >=
+  //       document.body.offsetHeight - 100 &&
+  //       !loading
+  //     ) {
+  //       setPage((prev) => prev + 1);
+  //     }
+  //   };
 
-      window.addEventListener("scroll", handleScroll);
-      return () => window.removeEventListener("scroll", handleScroll);
-    }, [loading]);
+  //   window.addEventListener("scroll", handleScroll);
+  //   return () => window.removeEventListener("scroll", handleScroll);
+  // }, [loading]);
 
-    
-    useEffect(() => {
-      const fetchProducts = async () => {
-        setLoading(true);
-
-        try {
-          let response;
-
-          if (categoryId) {
-            console.log("📦 Fetching products by category ID:", categoryId);
-            response = await axios.get(
-              `${apiurl}/category/${categoryId}?page=${page}&limit=9`
-            );
-          } else if (subcategoryId) {
-            console.log(
-              "📦 Fetching products by subcategory ID:",
-              subcategoryId
-            );
-            response = await axios.get(
-              `${apiurl}/product/subcategory/${subcategoryId}?page=${page}&limit=9`
-            );
-          }
-
-          if (response?.data?.success) {
-            setProducts((prev) => [...prev, ...response.data.products]);
-            console.log("✅ Products fetched:", response.data.products.length);
-          } else {
-            console.warn("⚠️ No products received");
-          }
-        } catch (error) {
-          console.error("❌ Error fetching products:", error.message);
-        } finally {
-          setLoading(false);
-        }
-      };
-
-       if (categoryId) fetchProducts();
-    }, [categoryId, subcategoryId, page]);
-
-    
-  // Mock infinite scroll
-  const loadMoreProducts = () => {
-    setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setProducts((prev) => [...prev, ...new Array(6).fill({})]);
-      setPage((prev) => prev + 1);
-      setLoading(false);
-    }, 1000);
-  };
 
   useEffect(() => {
-    loadMoreProducts();
-  }, []);
+    const fetchProducts = async () => {
+      if (loading) return; // Don't fetch if already loading
+      setLoading(true);
+
+      try {
+        let response;
+
+        if (categoryId) {
+          console.log("📦 Fetching products by category ID:", categoryId);
+          response = await axios.get(
+            `${apiurl}/category/${categoryId}?limit=50` // Fetch all products in the category
+          );
+        } else if (subcategoryId) {
+          console.log("📦 Fetching products by subcategory ID:", subcategoryId);
+          response = await axios.get(
+            `${apiurl}/product/subcategory/${subcategoryId}?limit=50` // Fetch all products in the subcategory
+          );
+        }
+
+        console.log(response, "get products by Id in shop");
+
+        if (response?.data?.success && response?.data?.products?.length > 0) {
+          setProducts(response.data.products); // Directly set all products
+          console.log("✅ Products fetched:", response.data.products);
+        } else {
+          console.warn("⚠️ No products received");
+        }
+      } catch (error) {
+        console.error("❌ Error fetching products:", error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts(); // Trigger the fetch
+  }, [categoryId, subcategoryId]); // Fetch products when categoryId or subcategoryId changes
+
+
+  // Mock infinite scroll
+  // const loadMoreProducts = () => {
+  //   setLoading(true);
+  //   // Simulate API call
+  //   setTimeout(() => {
+  //     setProducts((prev) => [...prev, ...new Array(6).fill({})]);
+  //     setPage((prev) => prev + 1);
+  //     setLoading(false);
+  //   }, 1000);
+  // };
+
+  // useEffect(() => {
+  //   loadMoreProducts();
+  // }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -136,13 +136,12 @@ const ProductPage = () => {
               <label key={color} className="flex items-center space-x-2">
                 <input type="checkbox" className="form-checkbox" />
                 <span
-                  className={`w-4 h-4 rounded-full ${
-                    color === "Rose Gold"
-                      ? "bg-rose-gold"
-                      : color === "White Gold"
+                  className={`w-4 h-4 rounded-full ${color === "Rose Gold"
+                    ? "bg-rose-gold"
+                    : color === "White Gold"
                       ? "bg-white-gold"
                       : "bg-yellow-gold"
-                  }`}
+                    }`}
                 />
                 <span>{color}</span>
               </label>
@@ -169,19 +168,19 @@ const ProductPage = () => {
                 key={index}
                 className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
               >
-                <Link to={`/`} className="no-underline">
-                  <div className="aspect-square bg-gray-100 rounded-t-lg overflow-hidden">
+                <Link to={`/product/${product._id}`} className="no-underline">
+                  <div className="h-[350px] bg-gray-100 rounded-t-lg overflow-hidden">
                     <LazyLoadImage
-                      src={product.image || "/placeholder.jpg"}
+                      src={product.thumbnail || "/placeholder.jpg"}
                       effect="blur"
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold text-gray-800 mb-1">
-                      Product Title
+                    <h3 className="font-semibold text-lg crimson text-gray-800 mb-1">
+                      {product.title}
                     </h3>
-                    <p className="text-primary font-medium">₹ 1,24,999</p>
+                    <p className="text-gray-800 montserrat font-medium">₹ {product.variants[0].totalPrice}</p>
                   </div>
                 </Link>
               </div>

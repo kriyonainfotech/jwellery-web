@@ -9,6 +9,19 @@ html {
   font-family: "Montserrat", serif;
 }
 
+.cream {
+  color: #efdfbb;
+}
+.bg-cream {
+  background-color: #efdfbb75;
+}
+.maroon {
+  color: #722f37;
+}
+.bg-maroon {
+  background-color: #722f37;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -18,4 +31,8 @@ html {
 *::before,
 *::after {
   box-sizing: border-box;
+}
+a {
+  text-decoration: none !important;
+  /* color: inherit !important; */
 }

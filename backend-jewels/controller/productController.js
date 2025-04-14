@@ -10,102 +10,22 @@ const upload = multer({ storage: storage });
 
 // Create a new product
 
-exports.createProduct = async (req, res) => {
+exports.getProductById = async (req, res) => {
   try {
-    console.log("🚀 [API] Create Product Initiated...");
-console.log("🔍 req.file (thumbnail):", req.file);
-console.log("🧾 req.files (variants):", req.files);
-    const {
-      title,
-      categoryId,
-      subCategoryId,
-      description,
-      tags = [],
-    } = req.body;
+    // console.log(req.body, req.query, req.params);
+    const { productId } = req.params;
+    const product = await Product.findById(productId);
 
-    console.log("📥 Incoming Data:");
-    console.log("📝 Title:", title);
-    console.log("📦 Category ID:", categoryId);
-    console.log("🔖 Subcategory ID:", subCategoryId);
-    console.log("🏷️ Tags:", tags);
-
-    let variants = JSON.parse(req.body.variants || "[]");
-
-    // Step 1: Create base product
-    const newProduct = new Product({
-      title,
-      categoryId,
-      subCategoryId,
-      description,
-      tags,
-      variants: [],
-      thumbnail: "",
-    });
-
-    await newProduct.save();
-    console.log("🆕 Product placeholder created with ID:", newProduct._id);
-
-    // Step 2: Handle Thumbnail Upload
-        let thumbnailUrl = "";
-        const thumbnailFile = req.file;
-        if (thumbnailFile) {
-          console.log("📤 Uploading Thumbnail...");
-          thumbnailUrl = await uploadImageToCloudinary(
-            thumbnailFile,
-            // 🚨 Remove space after "jewels/"
-            `jewels/products/${newProduct._id}` // ✅ Correct path
-          );
-          console.log("🖼️ Thumbnail Uploaded:", thumbnailUrl);
-        }
-
-    // Step 3: Process Each Variant
-    const updatedVariants = [];
-
-    for (let i = 0; i < variants.length; i++) {
-      const variant = variants[i];
-      const files = req.files?.[`images_${i}`] || [];
-
-      // const files = req.files?.filter(f => f.fieldname === `variantImages_${i}`) || [];
-
-      console.log(`🧩 Processing Variant ${i + 1}...`);
-      const imageUrls = [];
-
-      for (const file of files) {
-        const uploadedUrl = await uploadImageToCloudinary(
-          file,
-          `jewels/products/${newProduct._id}/variant-${i}`
-        );
-        imageUrls.push(uploadedUrl);
-      }
-
-      console.log(
-        `📸 Uploaded ${imageUrls.length} images for Variant ${i + 1}`
-      );
-
-      updatedVariants.push({
-        ...variant,
-        images: imageUrls,
-      });
+    if (!product) {
+      return res
+        .status(404)
+        .json({ success: false, message: "❌ Product not found" });
     }
 
-    // Step 4: Final Update of Product
-    newProduct.variants = updatedVariants;
-    if (thumbnailUrl) newProduct.thumbnail = thumbnailUrl;
-
-    await newProduct.save();
-    console.log("✅ Product Created Successfully with ID:", newProduct._id);
-
-    res.status(201).send({
-      success: true,
-      message: "🎉 Product created successfully!",
-      data: newProduct,
-    });
-  } catch (error) {
-    console.log("🔥 Error in Create Product API:", error.message);
-    res.status(500).send({
-      success: false,
-      message: "❌ Error creating product.",
-    });
+    res.status(200).json({ success: true, product });
+  } catch (err) {
+    console.error("🔥 Error fetching product by ID:", err.message);
+    res.status(500).json({ success: false, message: "Server error" });
   }
 };
 

@@ -170,7 +170,7 @@ const AddProduct = () => {
       );
       console.log("Response:", response.data);
       toast.success("Product added successfully!");
-      navigate("/admin/products");
+      // navigate("/admin/products");
     } catch (error) {
       console.error("Submission error:", error);
       const errorMessage =
@@ -612,9 +612,8 @@ const AddProduct = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className={`bg-blue-900 text-white px-6 py-3 rounded-md hover:bg-blue-800 transition relative ${
-                isSubmitting ? "opacity-75 cursor-not-allowed" : ""
-              }`}
+              className={`bg-blue-900 text-white px-6 py-3 rounded-md hover:bg-blue-800 transition relative ${isSubmitting ? "opacity-75 cursor-not-allowed" : ""
+                }`}
             >
               {isSubmitting ? (
                 <div className="flex items-center justify-center gap-2">

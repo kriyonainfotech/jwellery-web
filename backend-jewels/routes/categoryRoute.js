@@ -21,8 +21,8 @@ router.post(
   upload.single("image"),
   createCategory
 );
-router.get("/:categoryId", getProductsByCategory);
 router.get("/getallcategories", getAllCategories); // 📦 All
+router.get("/:categoryId", getProductsByCategory);
 
 // router.get("/:id", getCategoryById); // 🔍 One
 // router.put("/:id", protect, isAdmin, updateCategory); // ✏️ Edit

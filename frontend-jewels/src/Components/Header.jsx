@@ -9,6 +9,7 @@ import { FiSearch, FiX } from "react-icons/fi";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { FaAngleDown } from "react-icons/fa";
+import { getCartItemCount } from "./utilis/cartUtils";
 const apiurl = import.meta.env.VITE_API_URL;
 
 const Header = ({ isHomepage }) => {
@@ -19,6 +20,7 @@ const Header = ({ isHomepage }) => {
   const isAdmin = user?.role === "admin" || user?.isAdmin;
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState(null);
+  const [cartCount, setCartCount] = useState(0);
 
   const dropdownStyles = {
     dropdown: {
@@ -63,6 +65,16 @@ const Header = ({ isHomepage }) => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  useEffect(() => {
+    setCartCount(getCartItemCount());
+  }, []);
+
+  useEffect(() => {
+    const update = () => setCartCount(getCartItemCount());
+    window.addEventListener("cartUpdated", update);
+    return () => window.removeEventListener("cartUpdated", update);
+  }, []);
+
   const location = useLocation();
   const isHome = isHomepage || location.pathname === "/";
 
@@ -96,9 +108,8 @@ const Header = ({ isHomepage }) => {
 
   return (
     <header
-      className={`container-fluid fixed top-0 w-full z-[30] transition-all duration-300 ${
-        isScrolled ? "header-blur" : ""
-      }`}
+      className={`container-fluid fixed top-0 w-full z-[30] transition-all duration-300 ${isScrolled ? "header-blur" : ""
+        }  ${isHome ? "" : "header-other"}`}
     >
       <nav className="navbar navbar-expand-lg">
         <div className="container-fluid">
@@ -108,10 +119,9 @@ const Header = ({ isHomepage }) => {
               {/* Menu Button */}
               <button
                 onClick={() => setShowMenuModal(true)}
-                className={`d-none d-md-flex align-items-center pe-4 ${
-                  isHome ? "header-home" : "header-other"
-                } `}
-                // className="flex items-center gap-2 hover:text-gray-600 transition-colors"
+                className={`d-none d-md-flex align-items-center pe-4 header-home
+                  } `}
+              // className="flex items-center gap-2 hover:text-gray-600 transition-colors"
               >
                 <FiMenu className="w-6 h-6" />
                 <span className="hidden sm:inline">Menu</span>
@@ -121,9 +131,8 @@ const Header = ({ isHomepage }) => {
               <button
                 onClick={() => setShowSearchModal(true)}
                 // className="flex items-center gap-2 hover:text-gray-600 transition-colors"
-                className={`d-none d-md-flex align-items-center pe-4 ${
-                  isHome ? "header-home" : "header-other"
-                } `}
+                className={`d-none d-md-flex align-items-center pe-4 header-home
+                  } `}
               >
                 <FiSearch className="w-6 h-6" />
                 <span className="hidden sm:inline">Search</span>
@@ -135,15 +144,14 @@ const Header = ({ isHomepage }) => {
           <div className="col-6 flex justify-center">
             <a
               href="/"
-              className={`no-underline ${
-                isHome ? "header-home" : "header-other"
-              }  crimson font-semibold`}
+              className={`no-underline header-home
+                }  crimson font-semibold`}
             >
               <img
                 src={
                   isHome
-                    ? "https://res.cloudinary.com/dckm6ymoh/image/upload/v1744116642/Group_1597877808_ehkxos.png"
-                    : "https://res.cloudinary.com/dckm6ymoh/image/upload/v1744116641/Group_1597877807_1_ednxm0.png"
+                    ? "/Vector.svg"
+                    : "/Vector.svg"
                 }
                 className="w-20 h-20"
                 alt="Logo"
@@ -155,9 +163,8 @@ const Header = ({ isHomepage }) => {
           <div className="col-3 d-flex align-items-center justify-content-end">
             <Link
               to="/account/login"
-              className={`d-none d-md-flex align-items-center pe-4 ${
-                isHome ? "header-home" : "header-other"
-              } `}
+              className={`d-none d-md-flex align-items-center pe-4 header-home
+                } `}
             >
               <FaRegUser />{" "}
               <span className="montserrat uppercase fs-12 tracking-wider ps-1">
@@ -166,9 +173,8 @@ const Header = ({ isHomepage }) => {
             </Link>
             <Link
               to="/about"
-              className={`d-none d-md-flex align-items-center pe-4 ${
-                isHome ? "header-home" : "header-other"
-              } `}
+              className={`d-none d-md-flex align-items-center pe-4 header-home
+                } `}
             >
               <TiMediaEject size={20} />{" "}
               <span className="montserrat uppercase fs-12 tracking-wider ps-1">
@@ -186,22 +192,29 @@ const Header = ({ isHomepage }) => {
                 Wishlist
               </span>
             </Link> */}
-            <Link
-              // to="/cart"
-              className={`d-none d-md-flex align-items-center ${
-                isHome ? "header-home" : "header-other"
-              }`}
+            {/* <Link
+              to="/cart"
+              className={`d-none d-md-flex align-items-center header-home
+                }`}
             >
               <FiShoppingCart />{" "}
               <span className="montserrat uppercase fs-12 tracking-wider ps-1">
                 Cart
               </span>
+            </Link> */}
+            <Link to={'/cart'} className="relative flex items-center gap-1 text-gray-900 header-home">
+              <FiShoppingCart className="text-md" />
+              <span className="uppercase montserrat fs-12">Cart</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-4 bg-maroon text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  {cartCount}
+                </span>
+              )}
             </Link>
             <label
               htmlFor="search-toggle"
-              className={`d-flex d-md-none align-items-center ps-4 border-0 cursor-pointer ${
-                isHome ? "header-home" : "header-other"
-              }`}
+              className={`d-flex d-md-none align-items-center ps-4 border-0 cursor-pointer header-home
+                }`}
             >
               <IoSearchSharp />
               <span className="montserrat uppercase fs-12 tracking-wider ps-1">
@@ -225,7 +238,7 @@ const Header = ({ isHomepage }) => {
               >
                 <Link
                   to={`/shop/category/${cat._id}`}
-                  className="flex items-center montserrat text-white gap-1 text-md hover:text-cyan-200 transition no-underline position-relative"
+                  className="flex items-center montserrat text-[#EFDFBB] gap-1 text-md hover:text-white transition no-underline position-relative"
                 >
                   {cat.name} <FaAngleDown className="text-xs mt-[1px]" />
                 </Link>

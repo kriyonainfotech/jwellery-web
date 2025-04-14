@@ -7,6 +7,10 @@ import { HomePage } from "./HomePage";
 import Header from "../Components/Header";
 import Footer from "../Components/Footer";
 import ProductPage from "./productPage";
+import ProductDetails from './ProductDetails';
+import ProductDetailsPage from './ProductDetailsPage';
+import CartPage from './CartPage';
+import Checkout from './Checkout';
 
 const Home = () => {
   return (
@@ -18,6 +22,9 @@ const Home = () => {
         <Route path="/account/login" element={<Account />} />
         <Route path="/account/register" element={<Register />} />
         <Route path="/shop/category/:categoryId" element={<ProductPage />} />
+        <Route path="/product/:productId" element={<ProductDetailsPage />} />
+        <Route path="/cart" element={<CartPage />} />
+        <Route path='/checkout' element={<Checkout />} />
         {/* <Route path="/product/:productId" element={<ProductDetails />} /> */}
         <Route
           path="/shop/subcategory/:subcategoryId"

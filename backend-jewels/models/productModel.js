@@ -7,7 +7,7 @@ const variantSchema = new mongoose.Schema({
     required: true,
   },
   carat: { type: String, enum: ["14KT", "18KT", "22KT"], required: true },
-  size: { type: String }, // Only for rings
+  size: [{ type: String }], // Only for rings
 
   diamondDetails: {
     type: [
