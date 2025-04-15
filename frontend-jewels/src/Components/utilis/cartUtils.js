@@ -28,7 +28,7 @@ export const addToCart = (product, variantId = null, quantity = 1) => {
       thumbnail: product.thumbnail,
       variantId,
       variant: product.variants.find((v) => v._id === variantId),
-      quantity,
+      quantity: Number(quantity),
     });
   }
 
@@ -38,11 +38,13 @@ export const addToCart = (product, variantId = null, quantity = 1) => {
 
 // 🔁 Update quantity of a product in cart
 export const updateCartQty = (productId, variantId, qty) => {
+  if (!qty || isNaN(qty) || qty < 1) qty = 1; // 💡 fallback
+
   const cart = getCart();
 
   const updatedCart = cart.map((item) => {
     if (item._id === productId && item.variantId === variantId) {
-      return { ...item, quantity: qty };
+      return { ...item, quantity: Number(qty) };
     }
     return item;
   });
@@ -50,6 +52,7 @@ export const updateCartQty = (productId, variantId, qty) => {
   saveCart(updatedCart);
   return updatedCart;
 };
+
 
 // ❌ Remove item from cart
 export const removeFromCart = (productId, variantId) => {

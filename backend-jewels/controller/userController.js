@@ -104,6 +104,7 @@ exports.loginUser = async (req, res) => {
       console.warn("❌ No user found with this email");
       return res.status(401).json({ message: "Invalid email or password" });
     }
+    console.log("Address:", user.address);
 
     // 🔐 Check password
     const isMatch = await bcrypt.compare(password, user.password);
@@ -111,6 +112,7 @@ exports.loginUser = async (req, res) => {
       console.warn("❌ Incorrect password");
       return res.status(401).json({ message: "Invalid email or password" });
     }
+    console.log(user, "user");
 
     // 🎫 Generate Token
     const token = jwt.sign(
@@ -130,13 +132,7 @@ exports.loginUser = async (req, res) => {
       .status(200)
       .json({
         message: "✅ Login successful!",
-        user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          isAdmin: user.isAdmin,
-        },
+        user: user,
         token,
       });
 

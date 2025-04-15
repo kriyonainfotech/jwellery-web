@@ -18,6 +18,11 @@ html {
 .maroon {
   color: #722f37;
 }
+
+.hover-maroon:hover{
+  color: #722f37 !important;
+}
+
 .bg-maroon {
   background-color: #722f37;
 }
