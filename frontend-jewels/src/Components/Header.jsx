@@ -10,11 +10,15 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { FaAngleDown } from "react-icons/fa";
 import { getCartItemCount } from "./utilis/cartUtils";
+import { HiLightBulb } from "react-icons/hi";
+import { FiChevronDown, FiChevronUp } from "react-icons/fi";
+
 const apiurl = import.meta.env.VITE_API_URL;
 
 const Header = ({ isHomepage }) => {
   const [showMenuModal, setShowMenuModal] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [showMobileCategories, setShowMobileCategories] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const user = JSON.parse(localStorage.getItem("userInfo"));
   const isAdmin = user?.role === "admin" || user?.isAdmin;
@@ -25,13 +29,13 @@ const Header = ({ isHomepage }) => {
   const dropdownStyles = {
     dropdown: {
       position: "absolute",
-      top: "40px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      width: "min(90vw, 1200px)", // 🔥 Responsive width
+      top: "100%",
+      left: "10%",
+      width: "80vw",
+      height: "500px", // Fixed height
       backgroundColor: "#fff",
       color: "#000",
-      borderRadius: "8px",
+      borderRadius: "0 0 8px 8px",
       boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
       zIndex: 1000,
       padding: "2rem",
@@ -40,19 +44,21 @@ const Header = ({ isHomepage }) => {
       transition: "all 0.3s ease",
       opacity: activeCategory ? 1 : 0,
       visibility: activeCategory ? "visible" : "hidden",
+      overflow: "hidden",
     },
     subcategories: {
       flex: 1.5,
       display: "flex",
       flexDirection: "column",
-      gap: "1rem",
+      gap: "10px",
+      overflowY: "auto",
     },
     imageContainer: {
       flex: 1,
       borderRadius: "8px",
       overflow: "hidden",
       width: "100%",
-      height: "500px",
+      height: "100%",
     },
   };
 
@@ -108,34 +114,39 @@ const Header = ({ isHomepage }) => {
 
   return (
     <header
-      className={`container-fluid fixed top-0 w-full z-[30] transition-all duration-300 ${isScrolled ? "header-blur" : ""
-        }  ${isHome ? "" : "header-other"}`}
+      className={`container-fluid fixed top-0 w-full z-[30] transition-all duration-300 ${
+        isScrolled ? "header-blur" : ""
+      }  ${isHome ? "" : "header-other"}`}
     >
       <nav className="navbar navbar-expand-lg">
         <div className="container-fluid">
           {/* Left-side options (Menu, Search) */}
           <div className="col-3 d-flex justify-content-start align-items-center">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1 md:gap-4">
               {/* Menu Button */}
               <button
                 onClick={() => setShowMenuModal(true)}
-                className={`d-none d-md-flex align-items-center pe-4 header-home
+                className={`flex align-items-center pe-4 header-home
                   } `}
-              // className="flex items-center gap-2 hover:text-gray-600 transition-colors"
+                // className="flex items-center gap-2 hover:text-gray-600 transition-colors"
               >
                 <FiMenu className="w-6 h-6" />
-                <span className="hidden sm:inline">Menu</span>
+                <span className="hidden sm:inline montserrat uppercase fs-12 tracking-wider ps-1">
+                  Menu
+                </span>
               </button>
 
               {/* Search Button */}
               <button
                 onClick={() => setShowSearchModal(true)}
                 // className="flex items-center gap-2 hover:text-gray-600 transition-colors"
-                className={`d-none d-md-flex align-items-center pe-4 header-home
+                className={`flex align-items-center pe-4 header-home
                   } `}
               >
                 <FiSearch className="w-6 h-6" />
-                <span className="hidden sm:inline">Search</span>
+                <span className="hidden sm:inline montserrat uppercase fs-12 tracking-wider ps-1">
+                  Search
+                </span>
               </button>
             </div>
           </div>
@@ -148,11 +159,7 @@ const Header = ({ isHomepage }) => {
                 }  crimson font-semibold`}
             >
               <img
-                src={
-                  isHome
-                    ? "/Vector.svg"
-                    : "/Vector.svg"
-                }
+                src={isHome ? "/Vector.svg" : "/Vector.svg"}
                 className="w-20 h-20"
                 alt="Logo"
               />
@@ -163,72 +170,47 @@ const Header = ({ isHomepage }) => {
           <div className="col-3 d-flex align-items-center justify-content-end">
             <Link
               to="/account/login"
-              className={`d-none d-md-flex align-items-center pe-4 header-home
+              className={`flex align-items-center pe-4 header-home
                 } `}
             >
-              <FaRegUser />{" "}
-              <span className="montserrat uppercase fs-12 tracking-wider ps-1">
+              <FaRegUser className="w-6 h-6" />{" "}
+              <span className="hidden sm:inline montserrat uppercase fs-12 tracking-wider ps-1">
                 Account
               </span>
             </Link>
             <Link
               to="/about"
-              className={`d-none d-md-flex align-items-center pe-4 header-home
+              className={`d-none d-lg-flex align-items-center pe-4 header-home
                 } `}
             >
-              <TiMediaEject size={20} />{" "}
-              <span className="montserrat uppercase fs-12 tracking-wider ps-1">
+              <HiLightBulb className="w-6 h-6" />{" "}
+              <span className="hidden lg:inline montserrat uppercase fs-12 tracking-wider ps-1">
                 About
               </span>
             </Link>
-            {/* <Link
-              // to="/pages/whislist"
-              className={`d-none d-md-flex align-items-center pe-4 ${
-                isHome ? "header-home" : "header-other"
-              }`}
+            <Link
+              to={"/cart"}
+              className="relative d-none d-md-flex items-center gap-1 text-gray-900 header-home"
             >
-              <FaRegHeart />{" "}
-              <span className="montserrat uppercase fs-12 tracking-wider ps-1">
-                Wishlist
-              </span>
-            </Link> */}
-            {/* <Link
-              to="/cart"
-              className={`d-none d-md-flex align-items-center header-home
-                }`}
-            >
-              <FiShoppingCart />{" "}
-              <span className="montserrat uppercase fs-12 tracking-wider ps-1">
+              <FiShoppingCart className="w-8 h-8" />
+              <span className="hidden sm:inline montserrat uppercase fs-12 tracking-wider ps-1">
                 Cart
               </span>
-            </Link> */}
-            <Link to={'/cart'} className="relative flex items-center gap-1 text-gray-900 header-home">
-              <FiShoppingCart className="text-md" />
-              <span className="uppercase montserrat fs-12">Cart</span>
               {cartCount > 0 && (
                 <span className="absolute -top-2 -right-4 bg-maroon text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
                   {cartCount}
                 </span>
               )}
             </Link>
-            <label
-              htmlFor="search-toggle"
-              className={`d-flex d-md-none align-items-center ps-4 border-0 cursor-pointer header-home
-                }`}
-            >
-              <IoSearchSharp />
-              <span className="montserrat uppercase fs-12 tracking-wider ps-1">
-                Search
-              </span>
-            </label>
           </div>
         </div>
       </nav>
 
       {/* // Modify the categories map in the return statement */}
       {categories?.length > 0 && (
-        <div className="position-relative">
-          <div className="container mx-auto flex flex-wrap justify-center items-center gap-6 py-2">
+        <div className="relative d-none d-lg-flex flex-col">
+          {/* Category Header */}
+          <div className="container mx-auto flex flex-wrap justify-center items-center gap-6">
             {categories.map((cat) => (
               <div
                 key={cat._id}
@@ -238,50 +220,51 @@ const Header = ({ isHomepage }) => {
               >
                 <Link
                   to={`/shop/category/${cat._id}`}
-                  className="flex items-center montserrat text-[#EFDFBB] gap-1 text-md hover:text-white transition no-underline position-relative"
+                  className="flex items-center montserrat text-[#EFDFBB] gap-1 text-md hover:text-white transition no-underline"
                 >
                   {cat.name} <FaAngleDown className="text-xs mt-[1px]" />
                 </Link>
-
-                {/* Dropdown for active category */}
-                {activeCategory?._id === cat._id &&
-                  cat.subcategories?.length > 0 && (
-                    <div
-                      style={dropdownStyles.dropdown}
-                      onMouseEnter={() => setActiveCategory(cat)}
-                      onMouseLeave={() => setActiveCategory(null)}
-                    >
-                      <div style={dropdownStyles.subcategories}>
-                        {cat.subcategories.map((sub) => (
-                          <Link
-                            key={sub._id}
-                            to={`/shop/subcategory/${sub._id}`}
-                            className="text-gray-900 text-lg montserrat transition-colors py-2 px-4 rounded-lg no-underline hover:bg-gray-300"
-                          >
-                            {sub.name}
-                          </Link>
-                        ))}
-                      </div>
-
-                      <div style={dropdownStyles.imageContainer}>
-                        <img
-                          src={cat.image}
-                          alt={cat.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    </div>
-                  )}
               </div>
             ))}
           </div>
+
+          {/* ✅ Dropdown outside map, full width */}
+          {activeCategory?.subcategories?.length > 0 && (
+            <div
+              className="absolute top-full left-0 w-full bg-white z-50 shadow-lg px-10 py-8 flex gap-8 h-[500px]"
+              onMouseEnter={() => setActiveCategory(activeCategory)}
+              onMouseLeave={() => setActiveCategory(null)}
+            >
+              {/* Subcategories list */}
+              <div className="flex-[1.5] flex flex-col gap-4 overflow-y-auto">
+                {activeCategory.subcategories.map((sub) => (
+                  <Link
+                    key={sub._id}
+                    to={`/shop/subcategory/${sub._id}`}
+                    className="text-gray-900 text-lg montserrat py-2 px-4 rounded-lg no-underline hover:bg-gray-200 transition"
+                  >
+                    {sub.name}
+                  </Link>
+                ))}
+              </div>
+
+              {/* Image Section */}
+              <div className="flex-1 rounded-lg overflow-hidden h-full">
+                <img
+                  src={activeCategory.image}
+                  alt={activeCategory.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          )}
         </div>
       )}
 
       {/* Menu Modal */}
       {showMenuModal && (
-        <div className="fixed inset-0 z-50 h-[100vh] bg-black bg-opacity-50 flex items-start justify-start">
-          <div className="bg-white w-[20%] h-full p-6 shadow-lg overflow-y-auto">
+        <div className="fixed inset-0 z-50 h-screen bg-black bg-opacity-50 flex items-start justify-start">
+          <div className="bg-white w-full h-full lg:w-[20%] p-6 shadow-lg overflow-y-auto">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold">Menu</h2>
               <button
@@ -293,12 +276,55 @@ const Header = ({ isHomepage }) => {
             </div>
             <div className="flex flex-col gap-4">
               <ul className="menu-items">
-                <li>
+                <li className="bg-gray-50 my-2">
+                  <button
+                    className="menu-item w-full flex"
+                    onClick={() => setShowMobileCategories((prev) => !prev)}
+                  >
+                    <div className="flex flex-wrap justify-start items-center gap-2">
+                      <span className="text-base font-medium montserrat">
+                        Categories
+                      </span>
+                      <span className="text-xl mt-1">
+                        {showMobileCategories ? (
+                          <FiChevronUp />
+                        ) : (
+                          <FiChevronDown />
+                        )}
+                      </span>
+                    </div>
+                  </button>
+
+                  {/* Subcategories dropdown */}
+                  {showMobileCategories && categories?.length > 0 && (
+                    <ul className="mx-4 mt-2 space-y-2 ps-0">
+                      {categories.map((cat) => (
+                        <li
+                          key={cat._id}
+                          className="border-1 border-gray-200 py-2 my-1"
+                        >
+                          <Link
+                            to={`/shop/category/${cat._id}`}
+                            className="block px-2 py-1 text-sm font-medium text-gray-700 hover:text-red-800 montserrat"
+                            onClick={() => {
+                              setShowMenuModal(false); // close modal
+                              setShowMobileCategories(false); // optional: collapse dropdown too
+                            }}
+                          >
+                            {cat.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+
+                <li className="bg-gray-50 my-2">
                   <Link to="/account/login" className="menu-item">
                     My Profile
                   </Link>
                 </li>
-                <li>
+                <li className="bg-gray-50 my-2">
                   <Link
                     // to="/orders"
                     className="menu-item"
@@ -306,7 +332,7 @@ const Header = ({ isHomepage }) => {
                     My Orders
                   </Link>
                 </li>
-                <li>
+                <li className="bg-gray-50 my-2">
                   <Link
                     // to="/cart"
                     className="menu-item"
@@ -315,7 +341,7 @@ const Header = ({ isHomepage }) => {
                   </Link>
                 </li>
                 {isAdmin && (
-                  <li>
+                  <li className="bg-gray-50 my-2">
                     <Link to="/admin/dashboard" className="menu-item">
                       Admin Panel
                     </Link>
@@ -329,8 +355,8 @@ const Header = ({ isHomepage }) => {
 
       {/* Search Modal */}
       {showSearchModal && (
-        <div className="fixed inset-0 z-50 h-[100vh] bg-black bg-opacity-50 flex items-start justify-start">
-          <div className="bg-white w-[40%] h-full p-6 shadow-lg overflow-y-auto">
+        <div className="fixed inset-0 z-50 h-screen bg-black bg-opacity-50 flex items-start justify-start">
+          <div className="bg-white w-full h-full lg:w-[20%] p-6 shadow-lg overflow-y-auto">
             <div className="flex justify-between items-center mb-8">
               <h2 className="text-2xl font-bold">Search</h2>
               <button

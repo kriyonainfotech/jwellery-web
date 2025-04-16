@@ -135,7 +135,6 @@
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.6); /* Semi-transparent background */
-
   display: flex;
   justify-content: flex-start;
   transition: opacity 0.3s ease, visibility 0s 0.3s; /* Add delay to visibility change */
@@ -181,4 +180,34 @@
 
 .search-item:hover {
   background-color: #f0f0f0;
+}
+
+/* header.css additions */
+@media (max-width: 768px) {
+  .header-blur, .header-other {
+    backdrop-filter: blur(8px);
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}
+
+/* Mobile Animation */
+@keyframes slide-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.animate-slide-in {
+  animation: slide-in 0.3s ease-out;
+}
+
+/* Mobile Category Select */
+select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 2rem;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23EFDFBB'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.5rem;
 }

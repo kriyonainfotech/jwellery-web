@@ -14,7 +14,7 @@ export const HomePage = () => {
           style={{ position: "relative", zIndex: 2 }}
           className="col-12 flex justify-center  pt-[15rem] md:pt-[23rem]"
         >
-          <div className="col-8 text-center text-white">
+          <div className="col-8 text-center cream">
             <h1 className="crimson font-semibold tracking-wide text-4xl md:text-7xl">
               Welcome to Saaraa jewels
             </h1>

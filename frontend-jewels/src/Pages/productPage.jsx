@@ -8,8 +8,9 @@ const apiurl = import.meta.env.VITE_API_URL;
 
 const ProductPage = () => {
   const { categoryId, subcategoryId } = useParams();
-
   const [products, setProducts] = useState([]);
+  const [subcategory, setsubcategory] = useState([]);
+  const [category, setCategory] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({
@@ -34,7 +35,6 @@ const ProductPage = () => {
   //   return () => window.removeEventListener("scroll", handleScroll);
   // }, [loading]);
 
-
   useEffect(() => {
     const fetchProducts = async () => {
       if (loading) return; // Don't fetch if already loading
@@ -48,11 +48,13 @@ const ProductPage = () => {
           response = await axios.get(
             `${apiurl}/category/${categoryId}?limit=50` // Fetch all products in the category
           );
+          setCategory(response.data.category); // Set the category data
         } else if (subcategoryId) {
           console.log("📦 Fetching products by subcategory ID:", subcategoryId);
           response = await axios.get(
-            `${apiurl}/product/subcategory/${subcategoryId}?limit=50` // Fetch all products in the subcategory
+            `${apiurl}/subcategory/${subcategoryId}?limit=50` // Fetch all products in the subcategory
           );
+          setsubcategory(response.data.subcategory); // Set the subcategory data
         }
 
         console.log(response, "get products by Id in shop");
@@ -73,7 +75,6 @@ const ProductPage = () => {
     fetchProducts(); // Trigger the fetch
   }, [categoryId, subcategoryId]); // Fetch products when categoryId or subcategoryId changes
 
-
   // Mock infinite scroll
   // const loadMoreProducts = () => {
   //   setLoading(true);
@@ -89,18 +90,17 @@ const ProductPage = () => {
   //   loadMoreProducts();
   // }, []);
 
+  if (products.length === 0) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <h1 className="text-2xl font-bold text-gray-800">No Products Found</h1>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Banner */}
-      <div className="h-[500px] w-full bg-gray-200 mb-8">
-        <img
-          src="/banner.jpg"
-          alt="Collection Banner"
-          className="w-full h-full object-cover"
-        />
-      </div>
-
-      <div className="container mx-auto px-4 flex gap-8">
+      <div className="container mx-auto px-4 flex gap-8 pt-44">
         {/* Filters Sidebar (30%) */}
         <div className="w-1/4 space-y-8">
           <FilterSection title="New Arrival">
@@ -136,12 +136,13 @@ const ProductPage = () => {
               <label key={color} className="flex items-center space-x-2">
                 <input type="checkbox" className="form-checkbox" />
                 <span
-                  className={`w-4 h-4 rounded-full ${color === "Rose Gold"
-                    ? "bg-rose-gold"
-                    : color === "White Gold"
+                  className={`w-4 h-4 rounded-full ${
+                    color === "Rose Gold"
+                      ? "bg-rose-gold"
+                      : color === "White Gold"
                       ? "bg-white-gold"
                       : "bg-yellow-gold"
-                    }`}
+                  }`}
                 />
                 <span>{color}</span>
               </label>
@@ -180,7 +181,9 @@ const ProductPage = () => {
                     <h3 className="font-semibold text-lg crimson text-gray-800 mb-1">
                       {product.title}
                     </h3>
-                    <p className="text-gray-800 montserrat font-medium">₹ {product.variants[0].totalPrice}</p>
+                    <p className="text-gray-800 montserrat font-medium">
+                      ₹ {product.variants[0].totalPrice}
+                    </p>
                   </div>
                 </Link>
               </div>

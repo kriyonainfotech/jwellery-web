@@ -6,6 +6,7 @@ const {
   addSubcategory,
   viewSubcategories,
   deleteSubcategory,
+  getProductsBySubcategory,
 } = require("../controller/subcategoryController");
 const storage = multer.memoryStorage(); // or diskStorage if saving locally
 const upload = multer({ storage: storage });
@@ -19,5 +20,6 @@ routes.post(
 );
 routes.get("/view", isAdminLoggedIn, viewSubcategories);
 routes.delete("/delete/:subcategoryId", isAdminLoggedIn, deleteSubcategory);
+routes.get("/:subcategoryId", getProductsBySubcategory);
 
 module.exports = routes;

@@ -2,6 +2,7 @@
 
 const Subcategory = require("../models/subCategoryModel");
 const Category = require("../models/categoryModel"); // Category model to check if category exists
+const Product = require("../models/productModel"); // Product model to fetch products by subcategory
 const uploadImageToCloudinary = require("../middleware/uploadTocloud");
 
 // Add a new subcategory
@@ -90,8 +91,37 @@ const deleteSubcategory = async (req, res) => {
   }
 };
 
+// Get products by subcategory
+const getProductsBySubcategory = async (req, res) => {
+  try {
+    const { subcategoryId } = req.params;
+
+    // Find the subcategory by ID
+    const subcategory = await Subcategory.findById(subcategoryId);
+    if (!subcategory) {
+      return res
+        .status(404)
+        .send({ success: false, message: "Subcategory not found." });
+    }
+
+    // Fetch all products in the subcategory
+    const products = await Product.find({ subCategoryId: subcategoryId });
+
+    return res.status(200).send({
+      success: true,
+      message: "Products fetched by subcategory.",
+      products: products,
+      subcategory,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   addSubcategory,
   viewSubcategories,
   deleteSubcategory,
+  getProductsBySubcategory,
 };
