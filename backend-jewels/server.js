@@ -10,7 +10,11 @@ connectDB();
 
 const cors = require("cors");
 const corsOptions = {
-  origin: ["https://jwellery-demo.vercel.app", "http://localhost:5173"],
+  origin: [
+    "https://jwellery-demo.vercel.app",
+    "http://localhost:5173",
+    "https://saaraagems.com",
+  ],
   credentials: true, // This allows cookies to be sent
 };
 app.use(cors(corsOptions));
