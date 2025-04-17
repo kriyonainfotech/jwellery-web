@@ -149,10 +149,7 @@ const Account = () => {
       postalCode: "",
       country: "",
     });
-    const [loginform, setLoginform] = useState({
-      email: "",
-      phone: "",
-    });
+    const [loginform, setLoginform] = useState();
 
     const location = useLocation();
     useEffect(() => {
@@ -168,7 +165,8 @@ const Account = () => {
         const res = await axios.post(
           `${import.meta.env.VITE_API_URL}/auth/login`,
           {
-            loginform,
+            password: loginform.password,
+            emailOrPhone: loginform.emailOrPhone,
           },
           { withCredentials: true }
         );
@@ -205,17 +203,18 @@ const Account = () => {
 
     const handleSubmit = async (e) => {
       e.preventDefault();
-
+      console.log(formData, "form data");
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/register`,
+          `${import.meta.env.VITE_API_URL}/auth/register`,
           formData
         );
-        if (response.status === 200) {
+        if (response.status === 201) {
           alert("Registration successful! Please log in.");
         }
-        console.log("User registered:", response.data);
+        // console.log("User registered:", response.data);
       } catch (error) {
+        alert(error.response?.data?.message || "Something went wrong!");
         console.error("Error during registration:", error);
       }
     };

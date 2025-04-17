@@ -66,7 +66,7 @@ const ViewSubcategory = () => {
                   </td>
                   <td className="px-5 py-3 border-b">{subcategory.name}</td>
                   <td className="px-5 py-3 border-b text-center">
-                    <button
+                    {/* <button
                       className="text-blue-500 hover:text-blue-700 mx-2"
                       onClick={() => alert(`Edit ${subcategory.name}`)}
                     >
@@ -77,7 +77,7 @@ const ViewSubcategory = () => {
                       onClick={() => alert(`Delete ${subcategory.name}`)}
                     >
                       Delete
-                    </button>
+                    </button> */}
                   </td>
                 </tr>
               ))

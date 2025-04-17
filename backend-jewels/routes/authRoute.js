@@ -6,12 +6,16 @@ const {
   verifyOTP,
   logout,
   getUserById,
+  getCounts,
+  getAllUsers,
 } = require("../controller/userController");
-const { protect } = require("../middleware/authmiddleware");
+const { protect, isAdminLoggedIn } = require("../middleware/authmiddleware");
 
 routes.post("/register", registerUser);
 routes.post("/login", loginUser);
 routes.get("/me/:id", protect, getUserById);
+routes.get("/getcounts", isAdminLoggedIn, getCounts);
+routes.get("/allusers", isAdminLoggedIn, getAllUsers);
 
 
 module.exports = routes;

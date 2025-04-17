@@ -74,7 +74,7 @@ const ViewCategory = () => {
                     {category.name}
                   </td>
                   <td className="px-6 py-4 text-center space-x-3">
-                    <button
+                    {/* <button
                       onClick={() => alert(`Edit ${category.name}`)}
                       className="bg-orange-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-orange-600 transition"
                     >
@@ -85,7 +85,7 @@ const ViewCategory = () => {
                       className="bg-red-500 text-white px-3 py-2 rounded-lg text-sm hover:bg-red-600 transition"
                     >
                       Delete
-                    </button>
+                    </button> */}
                     <button>
                       <Link
                         to={`/admin/categories/${category._id}`}

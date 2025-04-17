@@ -88,7 +88,7 @@ const ViewProduct = () => {
               <th className="px-5 py-3 border-b">Tags</th>
               <th className="px-5 py-3 border-b text-center">Variants</th>
               <th className="px-5 py-3 border-b text-center">Status</th>
-              <th className="px-5 py-3 border-b text-center">Actions</th>
+              {/* <th className="px-5 py-3 border-b text-center">Actions</th> */}
             </tr>
           </thead>
 
@@ -147,7 +147,7 @@ const ViewProduct = () => {
                     <td className="px-5 py-3 border-b text-center capitalize">
                       {product.status?.status ? "Active" : "Inactive"}
                     </td>
-                    <td className="px-5 py-3 border-b text-center">
+                    {/* <td className="px-5 py-3 border-b text-center">
                       <button
                         className="text-blue-500 hover:text-blue-700 mx-2"
                         onClick={() => alert(`Edit ${product.title}`)}
@@ -160,7 +160,7 @@ const ViewProduct = () => {
                       >
                         Delete
                       </button>
-                    </td>
+                    </td> */}
                   </tr>
                 ))}
               </tbody>

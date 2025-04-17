@@ -1,5 +1,9 @@
 // controllers/userController.js
 const User = require("../models/userModel");
+const Order = require("../models/orderModel");
+const Category = require("../models/categoryModel");
+const Subcategory = require("../models/subcategoryModel");
+const Product = require("../models/productModel");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { validateRegisterData } = require("../middleware/authmiddleware"); // your existing validation
@@ -9,6 +13,7 @@ exports.registerUser = async (req, res) => {
     console.log("🚀 Registering user...");
 
     const { name, email, phone, password, address } = req.body;
+    console.log("Registration data:", req.body);
 
     // 🔍 Validate Email & Password
     try {
@@ -26,6 +31,7 @@ exports.registerUser = async (req, res) => {
     }
 
     const existingPhone = await User.findOne({ phone });
+    console.log("existingPhone", existingPhone);
     if (existingPhone) {
       console.warn("⚠️ Phone already exists");
       return res.status(400).json({ message: "Phone number already exists" });
@@ -89,30 +95,34 @@ exports.loginUser = async (req, res) => {
   try {
     console.log("🔐 Login attempt started...");
 
-    const { email, password } = req.body;
+    const { emailOrPhone, password } = req.body;
+    console.log("Login data:", req.body);
+    // console.log("Login data:", email
 
-    if (!email || !password) {
-      console.warn("⚠️ Email or password missing");
+    // 🛑 Validate input
+    if (!emailOrPhone || !password) {
+      console.warn("⚠️ Email/Phone or password missing");
       return res
         .status(400)
-        .json({ message: "Email and password are required." });
+        .json({ message: "Email/Phone and password are required." });
     }
 
-    // 🔎 Check if user exists
-    const user = await User.findOne({ email });
+    // 🔎 Find user by email or phone
+    const user = await User.findOne({
+      $or: [{ email: emailOrPhone }, { mobile: emailOrPhone }],
+    });
+
     if (!user) {
-      console.warn("❌ No user found with this email");
-      return res.status(401).json({ message: "Invalid email or password" });
+      console.warn("❌ No user found with this email or phone");
+      return res.status(401).json({ message: "Invalid credentials" });
     }
-    console.log("Address:", user.address);
 
     // 🔐 Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       console.warn("❌ Incorrect password");
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(401).json({ message: "Invalid credentials" });
     }
-    console.log(user, "user");
 
     // 🎫 Generate Token
     const token = jwt.sign(
@@ -132,11 +142,11 @@ exports.loginUser = async (req, res) => {
       .status(200)
       .json({
         message: "✅ Login successful!",
-        user: user,
+        user,
         token,
       });
 
-    console.log("🟢 Login successful:", user.email);
+    console.log("🟢 Login successful:", user.email || user.mobile);
   } catch (err) {
     console.error("🔥 Login failed:", err.message);
     res.status(500).json({ message: "Server error: " + err.message });
@@ -231,6 +241,55 @@ exports.getUserById = async (req, res) => {
     });
   } catch (err) {
     console.error("Error fetching user by ID:", err.message);
+    res.status(500).json({ message: "Server error: " + err.message });
+  }
+};
+
+exports.getCounts = async (req, res) => {
+  try {
+    const [
+      userCount,
+      orderCount,
+      categoryCount,
+      subcategoryCount,
+      productCount,
+    ] = await Promise.all([
+      User.countDocuments(),
+      Order.countDocuments(),
+      Category.countDocuments(),
+      Subcategory.countDocuments(),
+      Product.countDocuments(),
+    ]);
+
+    res.status(200).json({
+      success: true,
+      counts: {
+        users: userCount,
+        orders: orderCount,
+        categories: categoryCount,
+        subcategories: subcategoryCount,
+        products: productCount,
+      },
+    });
+  } catch (err) {
+    console.error("Error fetching counts:", err.message);
+    res.status(500).json({ message: "Server error: " + err.message });
+  }
+};
+
+exports.getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password -__v");
+    if (!users) {
+      return res.status(404).json({ message: "No users found" });
+    }
+    console.log(users, "all users");
+    res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (err) {
+    console.error("Error fetching all users:", err.message);
     res.status(500).json({ message: "Server error: " + err.message });
   }
 };
